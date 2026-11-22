@@ -43,13 +43,46 @@ body {
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 45px;
     padding-left: 10px;
 }
 
-.logo span {
-    font-size: 30px;
+.logo-mark {
+    position: relative;
+    display: block;
+    flex: 0 0 42px;
+    width: 42px;
+    height: 40px;
+}
+
+.logo-tile {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 25px;
+    height: 25px;
+    border: 1px solid rgba(16, 47, 40, 0.18);
+    border-radius: 6px;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.24);
+    color: #102f28;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.logo-tile-s {
+    top: 2px;
+    left: 1px;
+    background: #e7c56e;
+    transform: rotate(-8deg);
+}
+
+.logo-tile-h {
+    top: 14px;
+    left: 17px;
+    background: #d7e9dc;
+    transform: rotate(8deg);
 }
 
 .logo h2 {
@@ -57,8 +90,8 @@ body {
     letter-spacing: 1px;
 }
 
-.logo h2 span {
-    color: #70d6a5;
+.logo-accent {
+    color: #e7c56e;
     font-size: inherit;
 }
 
