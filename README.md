@@ -5,7 +5,7 @@ ScrabbleHub is a browser-based tool for managing Scrabble tournaments, players, 
 ## Getting started
 
 1. Open `index.html` in a modern web browser.
-2. Select **Register Player** on the dashboard and add at least two players. Add each player's rating if you want to use the Upsets board.
+2. Select **Register Player** on the dashboard or Players page to open the registration form. Enter a player name and rating; campus or institution is optional. Duplicate player names are rejected. Add at least two players to start a tournament.
 3. Optionally create a tournament with **New Tournament**.
 4. Open **Pairings** and choose a tournament. Pairings are created automatically when at least two players are registered.
 5. Record scores for the current round. The next round is paired automatically after every game in the round has a score.
@@ -16,8 +16,9 @@ The app is a static front-end project and does not require a build step or packa
 
 ## Features
 
-- Register players with Scrabble ratings and an optional campus or institution.
+- Register players with Scrabble ratings and an optional campus or institution using the in-page form, with required-name/rating validation and duplicate-name checks.
 - Assign players to campuses or institutions, then browse and search the player directory and their recorded results.
+- Edit existing player campus assignments in the Players directory.
 - Create tournaments with a venue, date, and round count.
 - Automatically create Swiss pairings from the registered player list: the first round is rating-seeded, later rounds follow standings, and repeat opponents are never paired. If no complete set of non-repeating games can be made, the app leaves that round unpaired rather than scheduling a rematch. An eligible player receives a bye when the player count is odd.
 - Withdraw an unavailable player from a tournament using the action beside their name in Pairings. Their current-round pairings and recorded results remain unchanged; they are excluded from pairings generated later. Withdrawn players can be reinstated for subsequent pairings.

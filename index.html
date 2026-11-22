@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCRABBLEHUB | Tournament Manager</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20261122">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -378,7 +378,38 @@
     </form>
 </dialog>
 
-<script src="script.js"></script>
+<dialog id="playerDialog" class="score-dialog">
+    <form id="playerForm" autocomplete="off">
+        <div class="dialog-heading">
+            <div>
+                <span class="eyebrow">PLAYER DIRECTORY</span>
+                <h2>Register player</h2>
+            </div>
+            <button type="button" class="dialog-close" id="closePlayerDialog" aria-label="Close">×</button>
+        </div>
+        <label>
+            Player name
+            <input id="playerName" type="text" maxlength="100" autocomplete="off" required>
+        </label>
+        <div class="form-row">
+            <label>
+                Scrabble rating
+                <input id="playerRating" type="number" min="0" step="any" required>
+            </label>
+            <label>
+                Campus or institution (optional)
+                <input id="playerCampus" type="text" maxlength="100">
+            </label>
+        </div>
+        <p id="playerFormError" class="form-error" role="alert"></p>
+        <div class="dialog-actions">
+            <button type="button" class="secondary-btn" id="cancelPlayerDialog">Cancel</button>
+            <button type="submit" class="primary-btn">Register player</button>
+        </div>
+    </form>
+</dialog>
+
+<script src="script.js?v=20261122"></script>
 
 </body>
 </html>

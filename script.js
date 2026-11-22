@@ -1053,6 +1053,12 @@ function openScoreDialog(context) {
     document.getElementById("scoreDialog").showModal();
 }
 
+function openPlayerDialog() {
+    document.getElementById("playerForm").reset();
+    document.getElementById("playerFormError").textContent = "";
+    document.getElementById("playerDialog").showModal();
+}
+
 function showPage(page) {
     const pageIds = {
         dashboard: "dashboardPage",
@@ -1113,33 +1119,44 @@ document.getElementById("newTournamentBtn").addEventListener("click", function()
     alert("Tournament created successfully!");
 });
 
-document.getElementById("registerPlayerBtn").addEventListener("click", function() {
-    const name = prompt("Enter player's full name:");
-    if (!name || !name.trim()) return;
+document.getElementById("registerPlayerBtn").addEventListener("click", openPlayerDialog);
+document.getElementById("playersRegisterBtn").addEventListener("click", openPlayerDialog);
+document.getElementById("playerForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const name = document.getElementById("playerName").value.trim();
+    const rating = Number(document.getElementById("playerRating").value);
+    const campus = document.getElementById("playerCampus").value.trim();
+    const error = document.getElementById("playerFormError");
+
+    if (!name) {
+        error.textContent = "Enter the player's name.";
+        return;
+    }
     if (players.some(function(player) {
-        return player.name && player.name.toLowerCase() === name.trim().toLowerCase();
+        return player.name && player.name.toLowerCase() === name.toLowerCase();
     })) {
-        alert("A player with that name is already registered.");
+        error.textContent = "A player with that name is already registered.";
         return;
     }
-
-    const rating = Number(prompt("Enter player's Scrabble rating:"));
     if (!Number.isFinite(rating) || rating < 0) {
-        alert("Enter a valid player rating.");
+        error.textContent = "Enter a valid player rating of zero or more.";
         return;
     }
 
-    const campus = prompt("Enter player's campus or institution (optional):");
-    if (campus === null) return;
-
-    players.push({ name: name.trim(), rating: rating, campus: campus.trim() });
+    players.push({ name: name, rating: rating, campus: campus });
     localStorage.setItem("scrabblePlayers", JSON.stringify(players));
+    document.getElementById("playerDialog").close();
+    document.getElementById("playerForm").reset();
     updateDashboard();
-    alert("Player registered successfully!");
+    if (!document.getElementById("playersPage").hidden) renderPlayers();
+    updateStatistics();
 });
 
-document.getElementById("playersRegisterBtn").addEventListener("click", function() {
-    document.getElementById("registerPlayerBtn").click();
+document.getElementById("closePlayerDialog").addEventListener("click", function() {
+    document.getElementById("playerDialog").close();
+});
+document.getElementById("cancelPlayerDialog").addEventListener("click", function() {
+    document.getElementById("playerDialog").close();
 });
 
 document.getElementById("createPairingBtn").addEventListener("click", function() {
