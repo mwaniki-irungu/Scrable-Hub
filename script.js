@@ -238,6 +238,33 @@ function getMatchForPairing(pairing) {
     });
 }
 
+function getWithdrawnPlayers(tournamentName) {
+    const tournament = tournaments.find(function(item) {
+        return item.name === tournamentName;
+    });
+    return tournament && Array.isArray(tournament.withdrawnPlayers) ?
+        tournament.withdrawnPlayers : [];
+}
+
+function isPlayerWithdrawn(tournamentName, playerName) {
+    return getWithdrawnPlayers(tournamentName).indexOf(playerName) !== -1;
+}
+
+function renderPairingPlayer(playerName, tournamentName) {
+    const withdrawn = isPlayerWithdrawn(tournamentName, playerName);
+    const action = withdrawn ? "Reinstate" : "Withdraw";
+    return '<div class="pairing-player">' +
+        '<span>' + escapeHtml(playerName) +
+        (withdrawn ? ' <span class="withdrawn-label">Withdrawn</span>' : "") +
+        '</span>' +
+        '<button type="button" class="small-action secondary-action" data-toggle-withdrawal="' +
+        escapeHtml(playerName) + '" data-withdrawal-tournament="' + escapeHtml(tournamentName) +
+        '" aria-label="' + action + " " + escapeHtml(playerName) + " " +
+        (withdrawn ? "for " : "from ") + escapeHtml(tournamentName) + '">' +
+        action + '</button>' +
+        '</div>';
+}
+
 function renderPlayers() {
     const searchInput = document.getElementById("playerSearch");
     const query = searchInput.value.trim().toLowerCase();
@@ -313,8 +340,9 @@ function renderPairings() {
         ].join(" ");
         return "<tr>" +
             "<td>" + (index + 1) + "</td>" +
-            "<td>" + escapeHtml(pairing.player1) + "</td>" +
-            "<td>" + (pairing.bye ? '<span class="bye-label">BYE</span>' : escapeHtml(pairing.player2)) + "</td>" +
+            "<td>" + renderPairingPlayer(pairing.player1, tournamentName) + "</td>" +
+            "<td>" + (pairing.bye ? '<span class="bye-label">BYE</span>' :
+                renderPairingPlayer(pairing.player2, tournamentName)) + "</td>" +
             "<td>" + escapeHtml(gameStatus) +
             (pairing.rematch ? ' <span class="rematch-label">Rematch</span>' : "") + "</td>" +
             "<td>" + actions + "</td>" +
@@ -426,7 +454,9 @@ function getTournamentStandings(tournamentName, beforeRound) {
         }
     });
 
-    return standings.sort(function(a, b) {
+    return standings.filter(function(player) {
+        return !isPlayerWithdrawn(tournamentName, player.name);
+    }).sort(function(a, b) {
         if (beforeRound === 1) return b.rating - a.rating || a.name.localeCompare(b.name);
         return b.points - a.points || b.spread - a.spread ||
             b.rating - a.rating || a.name.localeCompare(b.name);
@@ -530,8 +560,14 @@ function ensurePairings(tournamentName, round) {
     if (!tournamentName || !round) {
         return { generated: false, message: "Select a tournament and round to view pairings." };
     }
-    if (players.length < 2) {
-        return { generated: false, message: "Register at least two players; pairings will be created automatically." };
+    const availablePlayers = players.filter(function(player) {
+        return !isPlayerWithdrawn(tournamentName, player.name);
+    });
+    if (availablePlayers.length < 2) {
+        return {
+            generated: false,
+            message: "At least two available players are required to create pairings."
+        };
     }
     if (getPairingsForRound(tournamentName, round).length) {
         return { generated: false, message: "" };
@@ -1070,6 +1106,37 @@ document.getElementById("annotationTournament").addEventListener("change", funct
 document.getElementById("annotationRound").addEventListener("change", updateAnnotationPairingOptions);
 document.getElementById("annotationPairing").addEventListener("change", renderAnnotationPage);
 document.getElementById("pairingsTable").addEventListener("click", function(event) {
+    const withdrawalButton = event.target.closest("[data-toggle-withdrawal]");
+    if (withdrawalButton) {
+        const playerName = withdrawalButton.dataset.toggleWithdrawal;
+        const tournamentName = withdrawalButton.dataset.withdrawalTournament;
+        const withdrawn = isPlayerWithdrawn(tournamentName, playerName);
+        const action = withdrawn ? "reinstate" : "withdraw";
+        const details = withdrawn ?
+            "They will be included in pairings generated from now on." :
+            "Their current-round pairings and recorded results will remain unchanged; they will be left out of later rounds.";
+        if (!confirm("Are you sure you want to " + action + " " + playerName +
+            (withdrawn ? " for " : " from ") + tournamentName + "? " + details)) {
+            return;
+        }
+
+        const tournament = tournaments.find(function(item) {
+            return item.name === tournamentName;
+        });
+        if (!tournament) return;
+        if (!Array.isArray(tournament.withdrawnPlayers)) tournament.withdrawnPlayers = [];
+        if (withdrawn) {
+            tournament.withdrawnPlayers = tournament.withdrawnPlayers.filter(function(name) {
+                return name !== playerName;
+            });
+        } else {
+            tournament.withdrawnPlayers.push(playerName);
+        }
+        localStorage.setItem("scrabbleTournaments", JSON.stringify(tournaments));
+        renderPairings();
+        return;
+    }
+
     const scoreButton = event.target.closest("[data-score-pairing]");
     if (scoreButton) {
         const pairing = pairings.find(function(item) { return item.id === scoreButton.dataset.scorePairing; });

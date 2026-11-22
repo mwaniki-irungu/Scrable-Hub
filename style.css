@@ -759,8 +759,16 @@ footer {
     color: var(--primary);
 }
 
+.pairing-player {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
 .bye-label,
-.rematch-label {
+.rematch-label,
+.withdrawn-label {
     border-radius: 20px;
     display: inline-block;
     font-size: 9px;
@@ -776,6 +784,11 @@ footer {
 .rematch-label {
     background: #fff3d6;
     color: #8a5b00;
+}
+
+.withdrawn-label {
+    background: #f3e8e8;
+    color: #8a3434;
 }
 
 .score-dialog select:disabled,

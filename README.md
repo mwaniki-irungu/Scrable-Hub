@@ -20,6 +20,7 @@ The app is a static front-end project and does not require a build step or packa
 - Browse and search the player directory, including each player's recorded results.
 - Create tournaments with a venue, date, and round count.
 - Automatically create Swiss pairings from the registered player list: the first round is rating-seeded, later rounds follow standings, and repeat opponents are never paired. If no complete set of non-repeating games can be made, the app leaves that round unpaired rather than scheduling a rematch. An eligible player receives a bye when the player count is odd.
+- Withdraw an unavailable player from a tournament using the action beside their name in Pairings. Their current-round pairings and recorded results remain unchanged; they are excluded from pairings generated later. Withdrawn players can be reinstated for subsequent pairings.
 - Record game scores, rounds, and tournament association.
 - Add a move-by-move annotation log to a generated pairing, with player, word, score, and optional notes.
 - Review recent tournaments and dashboard totals.
