@@ -21,7 +21,7 @@ ScrabbleHub is a static front-end app. It requires no build step or package inst
 - Edit a player's campus or institution assignment in the Players directory.
 - Create tournaments with a venue, date, and round count.
 - Generate Swiss pairings. The first round is rating-seeded; later rounds follow standings. Repeat opponents are avoided. If a complete set of non-rematch pairings cannot be made, the round remains unpaired. When the number of eligible players is odd, one eligible player receives a bye.
-- Withdraw an unavailable player from a tournament in **Pairings**. Current-round pairings and recorded results stay unchanged; the player is excluded from pairings generated later. The player can be reinstated for subsequent rounds.
+- Use **Kick out** beside an unavailable player in **Pairings** to exclude them from future rounds. Current-round pairings and recorded results stay unchanged; the player can be reinstated for subsequent rounds.
 - Record game scores, rounds, and tournament associations.
 - Keep a move-by-move annotation log for each pairing, including player, word, score, and optional notes.
 - Review recent tournaments and player, tournament, and match totals on the Dashboard.

@@ -253,10 +253,10 @@ function isPlayerWithdrawn(tournamentName, playerName) {
 
 function renderPairingPlayer(playerName, tournamentName) {
     const withdrawn = isPlayerWithdrawn(tournamentName, playerName);
-    const action = withdrawn ? "Reinstate" : "Withdraw";
+    const action = withdrawn ? "Reinstate" : "Kick out";
     return '<div class="pairing-player">' +
         '<span>' + escapeHtml(playerName) +
-        (withdrawn ? ' <span class="withdrawn-label">Withdrawn</span>' : "") +
+        (withdrawn ? ' <span class="withdrawn-label">Kicked out</span>' : "") +
         '</span>' +
         '<button type="button" class="small-action secondary-action" data-toggle-withdrawal="' +
         escapeHtml(playerName) + '" data-withdrawal-tournament="' + escapeHtml(tournamentName) +
@@ -1251,7 +1251,7 @@ document.getElementById("pairingsTable").addEventListener("click", function(even
         const playerName = withdrawalButton.dataset.toggleWithdrawal;
         const tournamentName = withdrawalButton.dataset.withdrawalTournament;
         const withdrawn = isPlayerWithdrawn(tournamentName, playerName);
-        const action = withdrawn ? "reinstate" : "withdraw";
+        const action = withdrawn ? "reinstate" : "kick out";
         const details = withdrawn ?
             "They will be included in pairings generated from now on." :
             "Their current-round pairings and recorded results will remain unchanged; they will be left out of later rounds.";
