@@ -74,14 +74,18 @@ body {
 .logo-tile-s {
     top: 2px;
     left: 1px;
-    background: #e7c56e;
+    background: #287c5b;
+    border-color: #9ed5b5;
+    color: #ffffff;
     transform: rotate(-8deg);
 }
 
-.logo-tile-h {
+.logo-tile-k {
     top: 14px;
     left: 17px;
-    background: #d7e9dc;
+    background: #1d6249;
+    border-color: #e7c56e;
+    color: #ffffff;
     transform: rotate(8deg);
 }
 
