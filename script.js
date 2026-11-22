@@ -5,6 +5,16 @@ let tournaments = JSON.parse(localStorage.getItem("scrabbleTournaments")) || [];
 let matches = JSON.parse(localStorage.getItem("scrabbleMatches")) || [];
 let pairings = JSON.parse(localStorage.getItem("scrabblePairings")) || [];
 let annotations = JSON.parse(localStorage.getItem("scrabbleAnnotations")) || [];
+let tournamentRosterMigrationNeeded = false;
+tournaments.forEach(function(tournament) {
+    if (!Array.isArray(tournament.playerNames)) {
+        tournament.playerNames = players.map(function(player) { return player.name; });
+        tournamentRosterMigrationNeeded = true;
+    }
+});
+if (tournamentRosterMigrationNeeded) {
+    localStorage.setItem("scrabbleTournaments", JSON.stringify(tournaments));
+}
 let activeRounds = 0;
 let currentBoard = "enhanced";
 
@@ -42,6 +52,35 @@ function escapeHtml(value) {
 
 function saveMatches() {
     localStorage.setItem("scrabbleMatches", JSON.stringify(matches));
+}
+
+function saveTournaments() {
+    localStorage.setItem("scrabbleTournaments", JSON.stringify(tournaments));
+}
+
+function getTournamentPlayerNames(tournamentName) {
+    const tournament = tournaments.find(function(item) { return item.name === tournamentName; });
+    return tournament && Array.isArray(tournament.playerNames) ? tournament.playerNames : [];
+}
+
+function getTournamentPlayers(tournamentName) {
+    const tournamentPlayerNames = new Set(getTournamentPlayerNames(tournamentName));
+    return players.filter(function(player) { return tournamentPlayerNames.has(player.name); });
+}
+
+function isPlayerInTournament(playerName, tournamentName) {
+    return getTournamentPlayerNames(tournamentName).indexOf(playerName) !== -1;
+}
+
+function addPlayerToTournament(playerName, tournamentName) {
+    const tournament = tournaments.find(function(item) { return item.name === tournamentName; });
+    if (!tournament || isTournamentComplete(tournament) || isPlayerInTournament(playerName, tournamentName)) {
+        return false;
+    }
+    if (!Array.isArray(tournament.playerNames)) tournament.playerNames = [];
+    tournament.playerNames.push(playerName);
+    saveTournaments();
+    return true;
 }
 
 function getActiveRoundCount() {
@@ -101,15 +140,21 @@ function populateTournamentOptions() {
     const scoreSelect = document.getElementById("scoreTournament");
     const pairingsSelect = document.getElementById("pairingsTournament");
     const annotationSelect = document.getElementById("annotationTournament");
+    const playersTournamentSelect = document.getElementById("playersTournament");
+    const playerTournamentSelect = document.getElementById("playerTournament");
     const selectedStats = statsSelect.value;
     const selectedScore = scoreSelect.value;
     const selectedPairings = pairingsSelect.value;
     const selectedAnnotation = annotationSelect.value;
+    const selectedPlayersTournament = playersTournamentSelect.value;
+    const selectedPlayerTournament = playerTournamentSelect.value;
 
     statsSelect.innerHTML = '<option value="all">All tournaments</option>';
     scoreSelect.innerHTML = '<option value="">Unassigned game</option>';
     pairingsSelect.innerHTML = '<option value="">Select a tournament</option>';
     annotationSelect.innerHTML = '<option value="">Select a tournament</option>';
+    playersTournamentSelect.innerHTML = '<option value="">Select a tournament</option>';
+    playerTournamentSelect.innerHTML = '<option value="">Directory only</option>';
 
     tournaments.forEach(function(tournament) {
         const statsOption = document.createElement("option");
@@ -128,6 +173,13 @@ function populateTournamentOptions() {
             option.textContent = tournament.name;
             select.appendChild(option);
         });
+
+        [playersTournamentSelect, playerTournamentSelect].forEach(function(select) {
+            const option = document.createElement("option");
+            option.value = tournament.name;
+            option.textContent = tournament.name;
+            select.appendChild(option);
+        });
     });
 
     if (Array.from(statsSelect.options).some(function(option) { return option.value === selectedStats; })) {
@@ -141,14 +193,26 @@ function populateTournamentOptions() {
     })) {
         pairingsSelect.value = selectedPairings;
     } else if (tournaments.length) {
-        pairingsSelect.value = tournaments[0].name;
+        pairingsSelect.value = tournaments[tournaments.length - 1].name;
     }
     if (selectedAnnotation && Array.from(annotationSelect.options).some(function(option) {
         return option.value === selectedAnnotation;
     })) {
         annotationSelect.value = selectedAnnotation;
     } else if (tournaments.length) {
-        annotationSelect.value = tournaments[0].name;
+        annotationSelect.value = tournaments[tournaments.length - 1].name;
+    }
+    if (selectedPlayersTournament && Array.from(playersTournamentSelect.options).some(function(option) {
+        return option.value === selectedPlayersTournament;
+    })) {
+        playersTournamentSelect.value = selectedPlayersTournament;
+    } else if (tournaments.length) {
+        playersTournamentSelect.value = tournaments[tournaments.length - 1].name;
+    }
+    if (selectedPlayerTournament && Array.from(playerTournamentSelect.options).some(function(option) {
+        return option.value === selectedPlayerTournament;
+    })) {
+        playerTournamentSelect.value = selectedPlayerTournament;
     }
     updateRoundOptions(pairingsSelect, document.getElementById("pairingsRound"), "Select a tournament first");
     if (!selectedPairings && pairingsSelect.value) {
@@ -158,19 +222,56 @@ function populateTournamentOptions() {
     updateAnnotationPairingOptions();
 }
 
-function populatePlayerOptions() {
+function populatePlayerOptions(tournamentName) {
     const firstSelect = document.getElementById("scorePlayer1");
     const secondSelect = document.getElementById("scorePlayer2");
+    const previousFirst = firstSelect.value;
+    const previousSecond = secondSelect.value;
+    const tournamentPlayerNames = tournamentName ? new Set(getTournamentPlayerNames(tournamentName)) : null;
+    const availableIndexes = [];
+    players.forEach(function(player, index) {
+        if (!tournamentPlayerNames || tournamentPlayerNames.has(player.name)) {
+            availableIndexes.push(index);
+        }
+    });
+
     [firstSelect, secondSelect].forEach(function(select) {
         select.innerHTML = "";
-        players.forEach(function(player, index) {
+        availableIndexes.forEach(function(index) {
             const option = document.createElement("option");
             option.value = String(index);
-            option.textContent = player.name;
+            option.textContent = players[index].name;
             select.appendChild(option);
         });
     });
-    if (players.length > 1) secondSelect.selectedIndex = 1;
+
+    if (previousFirst && availableIndexes.indexOf(Number(previousFirst)) !== -1) {
+        firstSelect.value = previousFirst;
+    } else if (availableIndexes.length) {
+        firstSelect.value = String(availableIndexes[0]);
+    }
+    if (previousSecond && previousSecond !== firstSelect.value &&
+        availableIndexes.indexOf(Number(previousSecond)) !== -1) {
+        secondSelect.value = previousSecond;
+    } else {
+        const secondIndex = availableIndexes.find(function(index) {
+            return String(index) !== firstSelect.value;
+        });
+        if (secondIndex !== undefined) secondSelect.value = String(secondIndex);
+    }
+}
+
+function getCurrentTournamentName() {
+    const playersPage = document.getElementById("playersPage");
+    if (!playersPage.hidden) {
+        const selectedName = document.getElementById("playersTournament").value;
+        const selectedTournament = tournaments.find(function(item) { return item.name === selectedName; });
+        return selectedTournament && !isTournamentComplete(selectedTournament) ?
+            selectedTournament.name : "";
+    }
+
+    const latestTournament = tournaments[tournaments.length - 1];
+    return latestTournament && !isTournamentComplete(latestTournament) ? latestTournament.name : "";
 }
 
 function updateRoundOptions(tournamentSelect, roundSelect, placeholder) {
@@ -295,6 +396,11 @@ function renderPairingPlayer(playerName, tournamentName) {
 function renderPlayers() {
     const searchInput = document.getElementById("playerSearch");
     const query = searchInput.value.trim().toLowerCase();
+    const rosterTournamentName = document.getElementById("playersTournament").value;
+    const rosterTournament = tournaments.find(function(item) {
+        return item.name === rosterTournamentName;
+    });
+    const rosterLocked = rosterTournament && isTournamentComplete(rosterTournament);
     const playerStats = getStats(matches);
     const playerRows = players.slice().sort(function(a, b) {
         return a.name.localeCompare(b.name);
@@ -302,6 +408,14 @@ function renderPlayers() {
         return player.name.toLowerCase().includes(query);
     }).map(function(player, index) {
         const stats = playerStats.find(function(item) { return item.name === player.name; });
+        const rosterAction = !rosterTournamentName ?
+            '<span class="player-roster-status">Select a tournament</span>' :
+            isPlayerInTournament(player.name, rosterTournamentName) ?
+                '<span class="player-roster-status">In roster</span>' :
+                rosterLocked ?
+                    '<span class="player-roster-status">Tournament complete</span>' :
+                    '<button type="button" class="small-action secondary-action" data-add-to-tournament="' +
+                    escapeHtml(player.name) + '">Add to roster</button>';
         return "<tr>" +
             "<td>" + (index + 1) + "</td>" +
             "<td>" + escapeHtml(player.name) + "</td>" +
@@ -313,13 +427,19 @@ function renderPlayers() {
             "<td>" + (stats ? stats.draws : 0) + "</td>" +
             "<td>" + (stats ? stats.total : 0) + "</td>" +
             "<td>" + (stats ? stats.average.toFixed(1) : "—") + "</td>" +
-            '<td><button type="button" class="small-action secondary-action" data-edit-campus="' +
+            "<td>" + rosterAction + ' <button type="button" class="small-action secondary-action" data-edit-campus="' +
             escapeHtml(player.name) + '">Edit campus</button></td>' +
             "</tr>";
     });
 
-    document.getElementById("playerDirectoryCount").textContent =
-        players.length + (players.length === 1 ? " registered player" : " registered players");
+    let directoryCount = players.length + (players.length === 1 ? " registered player" : " registered players");
+    if (rosterTournamentName) {
+        directoryCount += " | " + getTournamentPlayers(rosterTournamentName).length +
+            " in " + rosterTournamentName;
+    }
+    document.getElementById("playerDirectoryCount").textContent = directoryCount;
+    document.getElementById("downloadPlayerRatingsBtn").disabled = !rosterTournament;
+    document.getElementById("sharePlayerRatingsBtn").disabled = !rosterTournament;
     document.getElementById("playersTable").innerHTML =
         '<table class="scoreboard-table"><thead><tr>' +
         "<th>#</th><th>Player</th><th>Campus / institution</th><th>Rating</th>" +
@@ -327,6 +447,50 @@ function renderPlayers() {
         "<th>Actions</th></tr></thead><tbody>" + playerRows.join("") +
         (playerRows.length ? "" : '<tr><td colspan="11">No players found.</td></tr>') +
         "</tbody></table>";
+}
+
+function csvCell(value) {
+    const text = String(value == null ? "" : value);
+    const safeText = /^[\s]*[=+\-@]/.test(text) ? "'" + text : text;
+    return '"' + safeText.replace(/"/g, '""') + '"';
+}
+
+function downloadPlayerRatingsCsv() {
+    const tournamentName = document.getElementById("playersTournament").value;
+    const tournament = tournaments.find(function(item) { return item.name === tournamentName; });
+    if (!tournament) return;
+
+    const rows = [["Tournament", "Player", "Rating", "Campus"]].concat(
+        getTournamentPlayers(tournamentName).slice().sort(function(a, b) {
+            return a.name.localeCompare(b.name);
+        }).map(function(player) {
+            return [tournamentName, player.name, player.rating, player.campus || ""];
+        })
+    );
+    const csv = "\uFEFF" + rows.map(function(row) {
+        return row.map(csvCell).join(",");
+    }).join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    const safeName = tournamentName.replace(/[\\/:*?"<>|]+/g, "-").trim() || "tournament";
+    anchor.href = url;
+    anchor.download = safeName + "-player-ratings.csv";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
+function sharePlayerRatingsOnWhatsApp() {
+    const tournamentName = document.getElementById("playersTournament").value;
+    const tournament = tournaments.find(function(item) { return item.name === tournamentName; });
+    if (!tournament) return;
+
+    const count = getTournamentPlayers(tournamentName).length;
+    const message = "Player names and ratings for " + tournamentName + " (" + count +
+        " participants). Please attach the downloaded roster CSV.";
+    window.open("https://wa.me/?text=" + encodeURIComponent(message), "_blank", "noopener");
 }
 
 function renderPairings() {
@@ -449,7 +613,7 @@ function renderAnnotationPage() {
 }
 
 function getTournamentStandings(tournamentName, beforeRound) {
-    const standings = players.map(function(player) {
+    const standings = getTournamentPlayers(tournamentName).map(function(player) {
         return {
             name: player.name,
             rating: Number(player.rating) || 0,
@@ -497,7 +661,9 @@ function getTournamentStandings(tournamentName, beforeRound) {
 }
 
 function getPreviousOpponents(tournamentName, beforeRound) {
-    const opponents = new Map(players.map(function(player) { return [player.name, new Set()]; }));
+    const opponents = new Map(getTournamentPlayers(tournamentName).map(function(player) {
+        return [player.name, new Set()];
+    }));
     matches.filter(function(match) {
         return match.tournament === tournamentName && Number(match.round) >= 1 &&
             Number(match.round) < beforeRound;
@@ -593,13 +759,13 @@ function ensurePairings(tournamentName, round) {
     if (!tournamentName || !round) {
         return { generated: false, message: "Select a tournament and round to view pairings." };
     }
-    const availablePlayers = players.filter(function(player) {
+    const availablePlayers = getTournamentPlayers(tournamentName).filter(function(player) {
         return !isPlayerWithdrawn(tournamentName, player.name);
     });
     if (availablePlayers.length < 2) {
         return {
             generated: false,
-            message: "At least two available players are required to create pairings."
+            message: "Add at least two available players to this tournament's roster to create pairings."
         };
     }
     if (getPairingsForRound(tournamentName, round).length) {
@@ -1058,11 +1224,14 @@ function openScoreDialog(context) {
     const tournamentSelect = document.getElementById("scoreTournament");
     const roundInput = document.getElementById("scoreRound");
     form.reset();
-    populatePlayerOptions();
     [player1Select, player2Select, tournamentSelect, roundInput].forEach(function(field) {
         field.disabled = false;
     });
     document.getElementById("scoreFormError").textContent = "";
+    if (context) {
+        tournamentSelect.value = context.tournament;
+    }
+    populatePlayerOptions(tournamentSelect.value);
     if (context) {
         player1Select.value = String(players.findIndex(function(player) {
             return player.name === context.player1;
@@ -1082,6 +1251,7 @@ function openScoreDialog(context) {
 function openPlayerDialog() {
     document.getElementById("playerForm").reset();
     document.getElementById("playerFormError").textContent = "";
+    document.getElementById("playerTournament").value = getCurrentTournamentName();
     document.getElementById("playerDialog").showModal();
 }
 
@@ -1127,8 +1297,14 @@ function createTournamentFromPrompts() {
         return;
     }
 
-    tournaments.push({ name: name.trim(), venue: venue.trim(), date: date.trim(), rounds: rounds });
-    localStorage.setItem("scrabbleTournaments", JSON.stringify(tournaments));
+    tournaments.push({
+        name: name.trim(),
+        venue: venue.trim(),
+        date: date.trim(),
+        rounds: rounds,
+        playerNames: []
+    });
+    saveTournaments();
     const pairingsTournament = document.getElementById("pairingsTournament");
     const newTournamentOption = document.createElement("option");
     newTournamentOption.value = name.trim();
@@ -1142,7 +1318,9 @@ function createTournamentFromPrompts() {
     );
     document.getElementById("pairingsRound").value = "1";
     updateDashboard();
-    alert("Tournament created successfully!");
+    document.getElementById("playersTournament").value = name.trim();
+    renderPlayers();
+    alert("Tournament created successfully. Add its participants from the Players page.");
 }
 
 document.getElementById("newTournamentBtn").addEventListener("click", createTournamentFromPrompts);
@@ -1155,6 +1333,7 @@ document.getElementById("playerForm").addEventListener("submit", function(event)
     const name = document.getElementById("playerName").value.trim();
     const rating = Number(document.getElementById("playerRating").value);
     const campus = document.getElementById("playerCampus").value.trim();
+    const tournamentName = document.getElementById("playerTournament").value;
     const error = document.getElementById("playerFormError");
 
     if (!name) {
@@ -1171,12 +1350,24 @@ document.getElementById("playerForm").addEventListener("submit", function(event)
         error.textContent = "Enter a valid player rating of zero or more.";
         return;
     }
+    if (tournamentName) {
+        const tournament = tournaments.find(function(item) { return item.name === tournamentName; });
+        if (!tournament || isTournamentComplete(tournament)) {
+            error.textContent = "Choose an active tournament or leave the player in the directory only.";
+            return;
+        }
+    }
 
     players.push({ name: name, rating: rating, campus: campus });
     localStorage.setItem("scrabblePlayers", JSON.stringify(players));
+    if (tournamentName) addPlayerToTournament(name, tournamentName);
     document.getElementById("playerDialog").close();
     document.getElementById("playerForm").reset();
     updateDashboard();
+    if (tournamentName) {
+        document.getElementById("playerRosterNotice").textContent =
+            name + " was added to " + tournamentName + ".";
+    }
     if (!document.getElementById("playersPage").hidden) renderPlayers();
     updateStatistics();
 });
@@ -1244,7 +1435,33 @@ document.getElementById("pairingsTournament").addEventListener("change", functio
 });
 document.getElementById("pairingsRound").addEventListener("change", renderPairings);
 document.getElementById("playerSearch").addEventListener("input", renderPlayers);
+document.getElementById("playersTournament").addEventListener("change", function() {
+    document.getElementById("playerRosterNotice").textContent =
+        "Roster changes affect only this tournament. Download the CSV, then attach it in WhatsApp.";
+    renderPlayers();
+});
+document.getElementById("downloadPlayerRatingsBtn").addEventListener("click", downloadPlayerRatingsCsv);
+document.getElementById("sharePlayerRatingsBtn").addEventListener("click", sharePlayerRatingsOnWhatsApp);
 document.getElementById("playersTable").addEventListener("click", function(event) {
+    const addButton = event.target.closest("[data-add-to-tournament]");
+    if (addButton) {
+        const tournamentName = document.getElementById("playersTournament").value;
+        const playerName = addButton.dataset.addToTournament;
+        const hasPairings = pairings.some(function(pairing) {
+            return pairing.tournament === tournamentName;
+        });
+        if (addPlayerToTournament(playerName, tournamentName)) {
+            updateDashboard();
+            document.getElementById("playerRosterNotice").textContent =
+                playerName + " was added to " + tournamentName +
+                (hasPairings ? ". Existing pairings stay unchanged; the player can join future rounds." : ".");
+        } else {
+            document.getElementById("playerRosterNotice").textContent =
+                "The player could not be added to this tournament.";
+        }
+        return;
+    }
+
     const editButton = event.target.closest("[data-edit-campus]");
     if (!editButton) return;
 
@@ -1263,6 +1480,12 @@ document.getElementById("playersTable").addEventListener("click", function(event
     localStorage.setItem("scrabblePlayers", JSON.stringify(players));
     renderPlayers();
     updateStatistics();
+});
+document.getElementById("scoreTournament").addEventListener("change", function() {
+    populatePlayerOptions(this.value);
+    const assignedPlayers = this.value ? getTournamentPlayers(this.value) : players;
+    document.getElementById("scoreFormError").textContent = assignedPlayers.length < 2 ?
+        "At least two players must be available for the selected tournament." : "";
 });
 document.getElementById("annotationTournament").addEventListener("change", function() {
     updateRoundOptions(
@@ -1361,6 +1584,11 @@ document.getElementById("scoreForm").addEventListener("submit", function(event) 
     const tournamentName = document.getElementById("scoreTournament").value;
     const player1 = players[firstIndex].name;
     const player2 = players[secondIndex].name;
+    if (tournamentName && (!isPlayerInTournament(player1, tournamentName) ||
+        !isPlayerInTournament(player2, tournamentName))) {
+        error.textContent = "Choose players assigned to the selected tournament.";
+        return;
+    }
     const duplicate = Boolean(tournamentName && roundInput) && matches.some(function(match) {
         return match.tournament === tournamentName &&
             Number(match.round) === Number(roundInput) &&

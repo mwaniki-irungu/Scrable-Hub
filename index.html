@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCRABBLEHUB | Tournament Manager</title>
 
-    <link rel="stylesheet" href="style.css?v=20261122-next-tournament">
+    <link rel="stylesheet" href="style.css?v=tournament-rosters-sharing-1">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -159,7 +159,7 @@
             <header class="topbar">
                 <div>
                     <h1>Players</h1>
-                    <p>Browse registered players and their tournament results.</p>
+                    <p>Manage the player directory and each tournament's participant roster.</p>
                 </div>
                 <button class="primary-btn" id="playersRegisterBtn">+ Register Player</button>
             </header>
@@ -171,6 +171,25 @@
                     </div>
                     <input type="search" id="playerSearch" class="search-input" placeholder="Search players" aria-label="Search players">
                 </div>
+                <div class="player-roster-toolbar">
+                    <label class="tournament-filter">
+                        Manage tournament roster
+                        <select id="playersTournament">
+                            <option value="">Select a tournament</option>
+                        </select>
+                    </label>
+                    <div class="player-roster-actions">
+                        <button type="button" class="secondary-btn" id="downloadPlayerRatingsBtn" disabled>
+                            Download roster CSV
+                        </button>
+                        <button type="button" class="secondary-btn" id="sharePlayerRatingsBtn" disabled>
+                            Share on WhatsApp
+                        </button>
+                    </div>
+                </div>
+                <p id="playerRosterNotice" class="page-notice" role="status">
+                    Use the tournament selector to manage participants and download the roster CSV. WhatsApp sharing requires attaching the downloaded file.
+                </p>
                 <div id="playersTable" class="table-wrap"></div>
             </section>
             <footer>SCRABBLEHUB © 2026 | Tournament Management System</footer>
@@ -416,6 +435,13 @@
                 <input id="playerCampus" type="text" maxlength="100">
             </label>
         </div>
+        <label>
+            Add player to tournament
+            <select id="playerTournament">
+                <option value="">Directory only</option>
+            </select>
+        </label>
+        <small class="player-roster-help">The player's rating is saved in this browser. Tournament assignment affects only the selected event.</small>
         <p id="playerFormError" class="form-error" role="alert"></p>
         <div class="dialog-actions">
             <button type="button" class="secondary-btn" id="cancelPlayerDialog">Cancel</button>
@@ -424,7 +450,7 @@
     </form>
 </dialog>
 
-<script src="script.js?v=20261122-next-tournament"></script>
+<script src="script.js?v=tournament-rosters-sharing-1"></script>
 
 </body>
 </html>

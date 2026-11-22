@@ -76,7 +76,7 @@ body {
     left: 1px;
     background: #287c5b;
     border-color: #9ed5b5;
-    color: #ffffff;
+    color: #f02222;
     transform: rotate(-8deg);
 }
 
@@ -84,7 +84,7 @@ body {
     top: 14px;
     left: 17px;
     background: #1d6249;
-    border-color: #e7c56e;
+    border-color: #493f25;
     color: #ffffff;
     transform: rotate(8deg);
 }
@@ -770,6 +770,46 @@ footer {
     margin-top: 6px;
 }
 
+.player-roster-toolbar {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.player-roster-toolbar .tournament-filter {
+    flex: 1 1 240px;
+    white-space: normal;
+}
+
+.player-roster-toolbar .tournament-filter select {
+    min-width: 180px;
+}
+
+.player-roster-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.player-roster-actions .secondary-btn {
+    padding: 10px 12px;
+}
+
+.player-roster-status {
+    color: var(--muted);
+    display: inline-block;
+    font-size: 10px;
+    margin-right: 6px;
+}
+
+.player-roster-help {
+    color: var(--muted);
+    font-size: 11px;
+}
+
 .search-input {
     width: min(250px, 100%);
     border: 1px solid var(--border);
@@ -927,6 +967,11 @@ footer {
         align-items: stretch;
         flex-direction: column;
         gap: 14px;
+    }
+
+    .player-roster-toolbar {
+        align-items: stretch;
+        flex-direction: column;
     }
 
     .search-input {
