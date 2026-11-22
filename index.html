@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCRABBLEHUB | Tournament Manager</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <span>♟</span>
+            <h2>SCRABBLE<span>HUB</span></h2>
+        </div>
+
+        <div class="menu-label">MAIN MENU</div>
+
+        <nav>
+            <a href="#" class="active" data-page="dashboard">▦ Dashboard</a>
+            <a href="#" data-page="players">♙ Players</a>
+            <a href="#">🏆 Tournaments</a>
+            <a href="#" data-page="pairings">⇄ Pairings</a>
+            <a href="#" data-action="score-entry">▤ Score Entry</a>
+            <a href="#" data-page="annotation">✎ Annotation</a>
+            <a href="#" data-action="standings">☷ Standings</a>
+            <a href="#">▧ Cross Tables</a>
+        </nav>
+
+        <div class="menu-label">MANAGEMENT</div>
+
+        <nav>
+            <a href="#" data-page="statistics">📊 Statistics</a>
+            <a href="#">📁 Reports</a>
+            <a href="#">⚙ Settings</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="avatar">SH</div>
+            <div>
+                <strong>Tournament Director</strong>
+                <small>Administrator</small>
+            </div>
+        </div>
+
+    </aside>
+
+    <main class="main-content">
+
+        <div id="dashboardPage">
+        <header class="topbar">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Welcome to your Scrabble tournament control centre.</p>
+            </div>
+
+            <button class="primary-btn" id="newTournamentBtn">
+                + New Tournament
+            </button>
+        </header>
+
+        <section class="welcome-banner">
+            <div>
+                <span class="eyebrow">TOURNAMENT MANAGEMENT SYSTEM</span>
+                <h2>Every Move Counts.</h2>
+                <p>Organize, manage and track Scrabble tournaments with precision.</p>
+            </div>
+
+            <div class="banner-icon">🏆</div>
+        </section>
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <span>Total Players</span>
+                <h2 id="totalPlayers">0</h2>
+                <small>Registered players</small>
+            </div>
+
+            <div class="stat-card">
+                <span>Tournaments</span>
+                <h2 id="totalTournaments">0</h2>
+                <small>Created tournaments</small>
+            </div>
+
+            <div class="stat-card">
+                <span>Matches Played</span>
+                <h2 id="totalMatches">0</h2>
+                <small>Recorded matches</small>
+            </div>
+
+            <div class="stat-card">
+                <span>Active Rounds</span>
+                <h2 id="activeRounds">0</h2>
+                <small>Rounds awaiting scores</small>
+            </div>
+
+        </section>
+
+        <section class="content-grid">
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>Recent Tournaments</h3>
+                    <button class="text-btn">View All</button>
+                </div>
+
+                <div id="tournamentList" class="empty-state">
+                    <div>🏆</div>
+                    <h3>No tournaments yet</h3>
+                    <p>Create your first tournament to get started.</p>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>Quick Actions</h3>
+                </div>
+
+                <div class="quick-actions">
+                    <button id="registerPlayerBtn">+ Register Player</button>
+                    <button id="createPairingBtn">⇄ View Pairings</button>
+                    <button id="enterScoreBtn">✎ Enter Scores</button>
+                    <button id="viewStandingsBtn">☷ View Standings</button>
+                </div>
+
+            </div>
+
+        </section>
+
+        <footer>
+            SCRABBLEHUB © 2026 | Tournament Management System
+        </footer>
+        </div>
+
+        <section id="playersPage" class="app-page" hidden>
+            <header class="topbar">
+                <div>
+                    <h1>Players</h1>
+                    <p>Browse registered players and their tournament results.</p>
+                </div>
+                <button class="primary-btn" id="playersRegisterBtn">+ Register Player</button>
+            </header>
+            <section class="panel directory-panel">
+                <div class="panel-header directory-header">
+                    <div>
+                        <h3>Player directory</h3>
+                        <p id="playerDirectoryCount">0 registered players</p>
+                    </div>
+                    <input type="search" id="playerSearch" class="search-input" placeholder="Search players" aria-label="Search players">
+                </div>
+                <div id="playersTable" class="table-wrap"></div>
+            </section>
+            <footer>SCRABBLEHUB © 2026 | Tournament Management System</footer>
+        </section>
+
+        <section id="pairingsPage" class="app-page" hidden>
+            <header class="topbar">
+                <div>
+                    <h1>Round Pairings</h1>
+                    <p>Swiss pairings are created automatically when the round is ready.</p>
+                </div>
+            </header>
+            <section class="panel pairings-panel">
+                <div class="pairing-controls">
+                    <label class="tournament-filter">
+                        Tournament
+                        <select id="pairingsTournament">
+                            <option value="">Select a tournament</option>
+                        </select>
+                    </label>
+                    <label class="tournament-filter">
+                        Round
+                        <select id="pairingsRound">
+                            <option value="">Select a tournament first</option>
+                        </select>
+                    </label>
+                </div>
+                <p id="pairingsNotice" class="page-notice" role="status"></p>
+                <div id="pairingsTable" class="table-wrap"></div>
+            </section>
+            <footer>SCRABBLEHUB © 2026 | Tournament Management System</footer>
+        </section>
+
+        <section id="annotationPage" class="app-page" hidden>
+            <header class="topbar">
+                <div>
+                    <h1>Game Annotation</h1>
+                    <p>Keep a move-by-move record of each game.</p>
+                </div>
+            </header>
+            <section class="panel annotation-panel">
+                <div class="pairing-controls annotation-controls">
+                    <label class="tournament-filter">
+                        Tournament
+                        <select id="annotationTournament">
+                            <option value="">Select a tournament</option>
+                        </select>
+                    </label>
+                    <label class="tournament-filter">
+                        Round
+                        <select id="annotationRound">
+                            <option value="">Select a round</option>
+                        </select>
+                    </label>
+                    <label class="tournament-filter">
+                        Game
+                        <select id="annotationPairing">
+                            <option value="">Select a paired game</option>
+                        </select>
+                    </label>
+                </div>
+                <p id="annotationNotice" class="page-notice" role="status">Choose a tournament and round to find a game to annotate.</p>
+                <div id="annotationContent" hidden>
+                    <div id="annotationMovesTable" class="table-wrap"></div>
+                    <form id="annotationForm" class="annotation-form">
+                        <h3>Record a move</h3>
+                        <div class="annotation-form-grid">
+                            <label>
+                                Player
+                                <select id="annotationPlayer" required></select>
+                            </label>
+                            <label>
+                                Word played
+                                <input id="annotationWord" type="text" maxlength="30" required placeholder="e.g. WORD">
+                            </label>
+                            <label>
+                                Score
+                                <input id="annotationScore" type="number" min="0" step="1" required>
+                            </label>
+                        </div>
+                        <label>
+                            Move notes (optional)
+                            <textarea id="annotationNotes" rows="2" maxlength="500" placeholder="Add a brief note about the move"></textarea>
+                        </label>
+                        <p id="annotationFormError" class="form-error" role="alert"></p>
+                        <button type="submit" class="primary-btn">Save move</button>
+                    </form>
+                </div>
+            </section>
+            <footer>SCRABBLEHUB © 2026 | Tournament Management System</footer>
+        </section>
+
+        <section id="statisticsPage" class="statistics-page" hidden>
+            <header class="topbar">
+                <div>
+                    <h1>Tournament Statistics</h1>
+                    <p>Explore player performance, standout games and tournament history.</p>
+                </div>
+                <button class="primary-btn" id="statisticsScoreBtn">+ Enter Score</button>
+            </header>
+
+            <section class="stats-summary" aria-label="Statistics summary">
+                <article class="summary-card">
+                    <span>Games recorded</span>
+                    <strong id="statsGamesCount">0</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Players on boards</span>
+                    <strong id="statsPlayersCount">0</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Highest game total</span>
+                    <strong id="statsHighestTotal">—</strong>
+                </article>
+                <article class="summary-card">
+                    <span>Biggest spread</span>
+                    <strong id="statsBiggestSpread">—</strong>
+                </article>
+            </section>
+
+            <section class="panel scoreboard-panel">
+                <div class="panel-header scoreboard-header">
+                    <div>
+                        <h3 id="scoreboardTitle">Enhanced Scoreboard</h3>
+                        <p id="scoreboardDescription">A complete view of wins, losses, points and averages.</p>
+                    </div>
+                    <label class="tournament-filter">
+                        Tournament
+                        <select id="statisticsTournament">
+                            <option value="all">All tournaments</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="scoreboard-layout">
+                    <nav class="scoreboard-nav" aria-label="Scoreboard categories">
+                        <button class="scoreboard-link active" data-board="enhanced">Enhanced scoreboard</button>
+                        <button class="scoreboard-link" data-board="average-scores">Average scores</button>
+                        <button class="scoreboard-link" data-board="average-opponent">Average opponent score</button>
+                        <button class="scoreboard-link" data-board="combined">High combined score</button>
+                        <button class="scoreboard-link" data-board="high-losses">High losses</button>
+                        <button class="scoreboard-link" data-board="spreads">High spreads</button>
+                        <button class="scoreboard-link" data-board="high-wins">High wins</button>
+                        <button class="scoreboard-link" data-board="low-losses">Low losses</button>
+                        <button class="scoreboard-link" data-board="low-wins">Low wins</button>
+                        <button class="scoreboard-link" data-board="lucky-stiffs">Lucky stiffs</button>
+                        <button class="scoreboard-link" data-board="scoreboard-1-16">Scoreboard 1–16</button>
+                        <button class="scoreboard-link" data-board="score-card">Score card</button>
+                        <button class="scoreboard-link" data-board="high-total">High total scores</button>
+                        <button class="scoreboard-link" data-board="tuff-luck">Tuff luck rating</button>
+                        <button class="scoreboard-link" data-board="upsets">Upsets</button>
+                        <button class="scoreboard-link" data-board="wall-chart">Wall chart</button>
+                    </nav>
+                    <div class="scoreboard-content">
+                        <div id="scoreboardTable" class="table-wrap"></div>
+                        <div id="scoreboardEmpty" class="empty-state" hidden>
+                            <div>▤</div>
+                            <h3>No scores to show yet</h3>
+                            <p>Record a game to start building these tournament boards.</p>
+                            <button class="primary-btn" id="emptyScoreBtn">Enter first score</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer>
+                SCRABBLEHUB © 2026 | Tournament Management System
+            </footer>
+        </section>
+
+    </main>
+
+</div>
+
+<dialog id="scoreDialog" class="score-dialog">
+    <form id="scoreForm">
+        <div class="dialog-heading">
+            <div>
+                <span class="eyebrow">MATCH RECORD</span>
+                <h2>Enter game scores</h2>
+            </div>
+            <button type="button" class="dialog-close" id="closeScoreDialog" aria-label="Close">×</button>
+        </div>
+        <label>
+            Tournament
+            <select id="scoreTournament">
+                <option value="">Unassigned game</option>
+            </select>
+        </label>
+        <div class="form-row">
+            <label>
+                Player 1
+                <select id="scorePlayer1" required></select>
+            </label>
+            <label>
+                Player 1 score
+                <input id="scoreValue1" type="number" min="0" step="1" required>
+            </label>
+        </div>
+        <div class="form-row">
+            <label>
+                Player 2
+                <select id="scorePlayer2" required></select>
+            </label>
+            <label>
+                Player 2 score
+                <input id="scoreValue2" type="number" min="0" step="1" required>
+            </label>
+        </div>
+        <label>
+            Round
+            <input id="scoreRound" type="number" min="1" step="1" placeholder="Optional">
+        </label>
+        <p id="scoreFormError" class="form-error" role="alert"></p>
+        <div class="dialog-actions">
+            <button type="button" class="secondary-btn" id="cancelScoreDialog">Cancel</button>
+            <button type="submit" class="primary-btn">Save score</button>
+        </div>
+    </form>
+</dialog>
+
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,864 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary: #174c3c;
+    --primary-light: #e8f2ed;
+    --background: #f5f7f8;
+    --white: #ffffff;
+    --text: #1d2939;
+    --muted: #84909e;
+    --border: #e8edf0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 260px;
+    background: #102f28;
+    color: white;
+    padding: 28px 18px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 45px;
+    padding-left: 10px;
+}
+
+.logo span {
+    font-size: 30px;
+}
+
+.logo h2 {
+    font-size: 19px;
+    letter-spacing: 1px;
+}
+
+.logo h2 span {
+    color: #70d6a5;
+    font-size: inherit;
+}
+
+.menu-label {
+    font-size: 10px;
+    color: #8ba99d;
+    letter-spacing: 1.5px;
+    margin: 22px 10px 12px;
+    font-weight: 700;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sidebar nav a {
+    text-decoration: none;
+    color: #c0d0c9;
+    padding: 13px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: #245b48;
+    color: white;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid #315046;
+    padding: 20px 5px 0;
+}
+
+.avatar {
+    background: #70d6a5;
+    color: #102f28;
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-weight: 800;
+}
+
+.sidebar-footer strong {
+    display: block;
+    font-size: 11px;
+}
+
+.sidebar-footer small {
+    color: #9db6aa;
+    font-size: 10px;
+}
+
+/* MAIN CONTENT */
+
+.main-content {
+    margin-left: 260px;
+    padding: 35px;
+    width: calc(100% - 260px);
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.topbar h1 {
+    font-size: 26px;
+    margin-bottom: 7px;
+}
+
+.topbar p {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.primary-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.primary-btn:hover {
+    background: #23634e;
+}
+
+/* WELCOME BANNER */
+
+.welcome-banner {
+    background: linear-gradient(110deg, #174c3c, #28785b);
+    padding: 35px;
+    border-radius: 14px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.eyebrow {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #a8dfc4;
+    font-weight: 700;
+}
+
+.welcome-banner h2 {
+    font-size: 29px;
+    margin: 12px 0;
+}
+
+.welcome-banner p {
+    font-size: 13px;
+    color: #d4e8dd;
+}
+
+.banner-icon {
+    font-size: 65px;
+}
+
+/* STATISTICS */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    padding: 23px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-width: 0;
+}
+
+.stat-card span {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.stat-card h2 {
+    font-size: 29px;
+    margin: 13px 0 7px;
+    color: var(--primary);
+}
+
+.stat-card small {
+    font-size: 11px;
+    color: #9aa5af;
+}
+
+/* CONTENT PANELS */
+
+.content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 20px;
+}
+
+.panel {
+    background: white;
+    padding: 23px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.panel-header h3 {
+    font-size: 15px;
+}
+
+.text-btn {
+    border: none;
+    background: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 30px 10px;
+}
+
+.empty-state div {
+    font-size: 35px;
+    margin-bottom: 12px;
+}
+
+.empty-state h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* QUICK ACTIONS */
+
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.quick-actions button {
+    background: #f7faf8;
+    border: 1px solid var(--border);
+    padding: 15px;
+    text-align: left;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+    transition: 0.3s;
+}
+
+.quick-actions button:hover {
+    background: var(--primary-light);
+    border-color: var(--primary);
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #9aa5af;
+    font-size: 10px;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 1000px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        width: 130px;
+        padding: 18px 8px;
+    }
+
+    .logo h2,
+    .menu-label,
+    .sidebar-footer strong,
+    .sidebar-footer small {
+        display: none;
+    }
+
+    .sidebar nav a {
+        font-size: 9px;
+        padding: 9px 5px;
+    }
+
+    .main-content {
+        margin-left: 130px;
+        width: calc(100% - 130px);
+        padding: 14px;
+    }
+
+    .content-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .content-grid > .panel {
+        min-width: 0;
+    }
+
+    .topbar {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .welcome-banner h2 {
+        font-size: 22px;
+    }
+
+    .welcome-banner {
+        padding: 20px;
+    }
+
+    .banner-icon {
+        display: none;
+    }
+
+    .stat-card {
+        padding: 14px;
+    }
+
+    .stat-card h2 {
+        font-size: 24px;
+    }
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.statistics-page > .topbar {
+    margin-bottom: 24px;
+}
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.summary-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+}
+
+.summary-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 11px;
+    margin-bottom: 10px;
+}
+
+.summary-card strong {
+    color: var(--primary);
+    font-size: 24px;
+}
+
+.scoreboard-panel {
+    padding: 22px;
+}
+
+.scoreboard-header {
+    align-items: flex-start;
+}
+
+.scoreboard-header p {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.tournament-filter {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.tournament-filter select,
+.score-dialog select,
+.score-dialog input {
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: #fff;
+    color: var(--text);
+    font: inherit;
+    padding: 10px 11px;
+}
+
+.scoreboard-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 22px;
+}
+
+.scoreboard-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 620px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.scoreboard-link {
+    border: 0;
+    background: transparent;
+    border-radius: 7px;
+    color: #64716c;
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+    padding: 10px 11px;
+    text-align: left;
+}
+
+.scoreboard-link:hover,
+.scoreboard-link.active {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.scoreboard-content {
+    min-width: 0;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+.scoreboard-table {
+    border-collapse: collapse;
+    min-width: 580px;
+    width: 100%;
+    text-align: left;
+}
+
+.scoreboard-table th {
+    background: #f7faf8;
+    color: #78867f;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    padding: 12px 13px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.scoreboard-table td {
+    border-bottom: 1px solid var(--border);
+    color: #46534d;
+    font-size: 12px;
+    padding: 13px;
+    white-space: nowrap;
+}
+
+.scoreboard-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.scoreboard-table td:first-child {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.statistics-page .empty-state {
+    padding: 55px 15px;
+}
+
+.statistics-page .empty-state .primary-btn {
+    margin-top: 18px;
+}
+
+.score-dialog {
+    width: min(520px, calc(100% - 32px));
+    max-width: none;
+    border: 0;
+    border-radius: 14px;
+    padding: 27px;
+    box-shadow: 0 24px 70px #102f2833;
+}
+
+.score-dialog::backdrop {
+    background: #102f2870;
+}
+
+.score-dialog form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.dialog-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 4px;
+}
+
+.dialog-heading h2 {
+    color: var(--text);
+    font-size: 21px;
+    margin-top: 7px;
+}
+
+.dialog-heading .eyebrow {
+    color: var(--primary);
+    font-size: 9px;
+}
+
+.dialog-close {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 25px;
+    line-height: 1;
+}
+
+.score-dialog label {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 7px;
+    color: #52615a;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.form-row {
+    display: flex;
+    gap: 12px;
+}
+
+.form-row label:first-child {
+    flex: 1.4;
+}
+
+.form-row label:last-child {
+    flex: 1;
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 3px;
+}
+
+.secondary-btn {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    color: #52615a;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 11px 16px;
+}
+
+.form-error {
+    color: #b42318;
+    font-size: 11px;
+    min-height: 14px;
+}
+
+@media (max-width: 1000px) {
+    .stats-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .scoreboard-layout {
+        grid-template-columns: 185px minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .scoreboard-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .scoreboard-nav {
+        display: grid;
+        grid-auto-columns: max-content;
+        grid-auto-flow: column;
+        max-height: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 8px;
+    }
+
+    .scoreboard-link {
+        border: 1px solid var(--border);
+    }
+
+    .scoreboard-header {
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .tournament-filter {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .tournament-filter select {
+        flex: 1;
+    }
+
+    .stats-summary {
+        gap: 10px;
+    }
+
+    .summary-card {
+        padding: 14px;
+    }
+
+    .summary-card strong {
+        font-size: 21px;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+}
+
+.app-page > .topbar {
+    margin-bottom: 24px;
+}
+
+.directory-panel,
+.pairings-panel,
+.annotation-panel {
+    min-width: 0;
+}
+
+.directory-header p {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 6px;
+}
+
+.search-input {
+    width: min(250px, 100%);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font: inherit;
+    font-size: 11px;
+    padding: 10px 12px;
+}
+
+.pairing-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.pairing-controls .tournament-filter {
+    flex: 1;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    min-width: 180px;
+    white-space: normal;
+}
+
+.pairing-controls .tournament-filter select {
+    width: 100%;
+}
+
+.page-notice {
+    color: var(--muted);
+    font-size: 12px;
+    margin: 8px 0 16px;
+}
+
+.small-action {
+    border: 1px solid var(--primary);
+    border-radius: 6px;
+    background: var(--primary);
+    color: white;
+    cursor: pointer;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    margin: 2px;
+    padding: 7px 9px;
+    white-space: nowrap;
+}
+
+.secondary-action {
+    background: white;
+    color: var(--primary);
+}
+
+.bye-label,
+.rematch-label {
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 4px 8px;
+}
+
+.bye-label {
+    background: #e8f2ed;
+    color: var(--primary);
+}
+
+.rematch-label {
+    background: #fff3d6;
+    color: #8a5b00;
+}
+
+.score-dialog select:disabled,
+.score-dialog input:disabled {
+    background: #f3f5f4;
+    color: #6b7771;
+}
+
+.annotation-controls {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 18px;
+}
+
+.annotation-form {
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    margin-top: 22px;
+    padding-top: 20px;
+}
+
+.annotation-form h3 {
+    font-size: 14px;
+}
+
+.annotation-form-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1.2fr 1.5fr .7fr;
+}
+
+.annotation-form label {
+    color: #52615a;
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+    font-weight: 600;
+    gap: 7px;
+}
+
+.annotation-form input,
+.annotation-form select,
+.annotation-form textarea {
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    padding: 10px 11px;
+    width: 100%;
+}
+
+.annotation-form textarea {
+    resize: vertical;
+}
+
+.annotation-form > .primary-btn {
+    align-self: flex-start;
+}
+
+.generate-pairings-btn:disabled,
+.primary-btn:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+@media (max-width: 700px) {
+    .directory-header {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .annotation-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pairing-controls .tournament-filter {
+        min-width: 100%;
+    }
+}
