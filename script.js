@@ -24,7 +24,8 @@ const boardDetails = {
     "high-total": ["High Total Scores", "Players ranked by total points scored across games."],
     "tuff-luck": ["Tuff Luck Rating", "Players with the most close losses (10 points or fewer)."],
     upsets: ["Upsets", "Lower-rated players who beat higher-rated opponents."],
-    "wall-chart": ["Wall Chart", "Round-by-round scores and opponents for each player."]
+    "wall-chart": ["Wall Chart", "Round-by-round scores and opponents for each player."],
+    institutions: ["Institutions", "Campus averages and tournament points by institution."]
 };
 
 function escapeHtml(value) {
@@ -275,25 +276,31 @@ function renderPlayers() {
         return player.name.toLowerCase().includes(query);
     }).map(function(player, index) {
         const stats = playerStats.find(function(item) { return item.name === player.name; });
-        return [
-            index + 1,
-            player.name,
-            Number(player.rating) || 0,
-            stats ? stats.games : 0,
-            stats ? stats.wins : 0,
-            stats ? stats.losses : 0,
-            stats ? stats.draws : 0,
-            stats ? stats.total : 0,
-            stats ? stats.average.toFixed(1) : "—"
-        ];
+        return "<tr>" +
+            "<td>" + (index + 1) + "</td>" +
+            "<td>" + escapeHtml(player.name) + "</td>" +
+            "<td>" + escapeHtml(player.campus || "Not assigned") + "</td>" +
+            "<td>" + (Number(player.rating) || 0) + "</td>" +
+            "<td>" + (stats ? stats.games : 0) + "</td>" +
+            "<td>" + (stats ? stats.wins : 0) + "</td>" +
+            "<td>" + (stats ? stats.losses : 0) + "</td>" +
+            "<td>" + (stats ? stats.draws : 0) + "</td>" +
+            "<td>" + (stats ? stats.total : 0) + "</td>" +
+            "<td>" + (stats ? stats.average.toFixed(1) : "—") + "</td>" +
+            '<td><button type="button" class="small-action secondary-action" data-edit-campus="' +
+            escapeHtml(player.name) + '">Edit campus</button></td>' +
+            "</tr>";
     });
 
     document.getElementById("playerDirectoryCount").textContent =
         players.length + (players.length === 1 ? " registered player" : " registered players");
-    document.getElementById("playersTable").innerHTML = createTable(
-        ["#", "Player", "Rating", "Games", "Wins", "Losses", "Draws", "Points", "Average"],
-        playerRows
-    );
+    document.getElementById("playersTable").innerHTML =
+        '<table class="scoreboard-table"><thead><tr>' +
+        "<th>#</th><th>Player</th><th>Campus / institution</th><th>Rating</th>" +
+        "<th>Games</th><th>Wins</th><th>Losses</th><th>Draws</th><th>Points</th><th>Average</th>" +
+        "<th>Actions</th></tr></thead><tbody>" + playerRows.join("") +
+        (playerRows.length ? "" : '<tr><td colspan="11">No players found.</td></tr>') +
+        "</tbody></table>";
 }
 
 function renderPairings() {
@@ -784,6 +791,97 @@ function renderWallChart(games) {
     return createTable(["Player"].concat(rounds), rows);
 }
 
+function renderInstitutionBoard(stats) {
+    const statsByName = new Map(stats.map(function(player) {
+        return [player.name, player];
+    }));
+    const institutions = new Map();
+    let unassignedPlayers = 0;
+
+    players.forEach(function(player) {
+        const campus = String(player.campus || "").trim();
+        if (!campus) {
+            unassignedPlayers += 1;
+            return;
+        }
+
+        const key = campus.toLocaleLowerCase();
+        if (!institutions.has(key)) {
+            institutions.set(key, {
+                name: campus,
+                players: 0,
+                playersWithGames: 0,
+                averageTotal: 0,
+                tournamentPoints: 0,
+                wins: 0,
+                draws: 0
+            });
+        }
+        const institution = institutions.get(key);
+        institution.players += 1;
+
+        const playerStats = statsByName.get(player.name);
+        if (!playerStats) return;
+        institution.playersWithGames += 1;
+        institution.averageTotal += playerStats.average;
+        institution.tournamentPoints += playerStats.wins + playerStats.draws * 0.5;
+        institution.wins += playerStats.wins;
+        institution.draws += playerStats.draws;
+    });
+
+    const unassignedNotice = unassignedPlayers ?
+        '<p class="page-notice">' + unassignedPlayers +
+            (unassignedPlayers === 1 ? " player has" : " players have") +
+            ' no campus assigned. Add one in the Players directory to include them.</p>' : "";
+    const ranked = Array.from(institutions.values()).map(function(institution) {
+        institution.average = institution.playersWithGames ?
+            institution.averageTotal / institution.playersWithGames : null;
+        return institution;
+    }).sort(function(a, b) {
+        return b.tournamentPoints - a.tournamentPoints ||
+            (b.average || 0) - (a.average || 0) ||
+            a.name.localeCompare(b.name);
+    });
+
+    if (!ranked.length) {
+        return unassignedNotice +
+            '<p class="page-notice">Assign a campus to players in the Players directory to see institution results.</p>';
+    }
+
+    const topPoints = ranked[0].tournamentPoints;
+    const leaders = ranked.filter(function(institution) {
+        return institution.tournamentPoints === topPoints;
+    });
+    const leaderNotice = topPoints ?
+        "Leading institution by tournament points: " +
+            leaders.map(function(institution) { return institution.name; }).join(", ") +
+            " (" + topPoints.toFixed(1) + " points)." :
+        "No institution has earned tournament points yet.";
+    const rows = ranked.map(function(institution, index) {
+        const rank = index > 0 && institution.tournamentPoints === ranked[index - 1].tournamentPoints ?
+            ranked[index - 1].rank : index + 1;
+        institution.rank = rank;
+        return [
+            rank,
+            institution.name,
+            institution.players,
+            institution.playersWithGames,
+            institution.average === null ? "—" : institution.average.toFixed(1),
+            institution.tournamentPoints.toFixed(1),
+            institution.wins,
+            institution.draws
+        ];
+    });
+    return unassignedNotice +
+        '<p class="page-notice"><strong>' + escapeHtml(leaderNotice) + "</strong> " +
+        "Campus average is the mean of member players' per-game averages.</p>" +
+        createTable(
+            ["Rank", "Institution / campus", "Players", "Players with games",
+                "Average points per game", "Tournament points", "Wins", "Draws"],
+            rows
+        );
+}
+
 function getBoardMarkup(games, stats) {
     const gamesByTotal = games.slice().sort(function(a, b) {
         return (Number(b.score1) + Number(b.score2)) - (Number(a.score1) + Number(a.score2));
@@ -877,6 +975,8 @@ function getBoardMarkup(games, stats) {
             return renderGamesBoard(games, upsetGames);
         case "wall-chart":
             return renderWallChart(games);
+        case "institutions":
+            return renderInstitutionBoard(stats);
         default:
             return renderPlayerBoard(games, stats, {
                 metric: "wins", direction: 1,
@@ -1029,7 +1129,10 @@ document.getElementById("registerPlayerBtn").addEventListener("click", function(
         return;
     }
 
-    players.push({ name: name.trim(), rating: rating });
+    const campus = prompt("Enter player's campus or institution (optional):");
+    if (campus === null) return;
+
+    players.push({ name: name.trim(), rating: rating, campus: campus.trim() });
     localStorage.setItem("scrabblePlayers", JSON.stringify(players));
     updateDashboard();
     alert("Player registered successfully!");
@@ -1095,6 +1198,26 @@ document.getElementById("pairingsTournament").addEventListener("change", functio
 });
 document.getElementById("pairingsRound").addEventListener("change", renderPairings);
 document.getElementById("playerSearch").addEventListener("input", renderPlayers);
+document.getElementById("playersTable").addEventListener("click", function(event) {
+    const editButton = event.target.closest("[data-edit-campus]");
+    if (!editButton) return;
+
+    const player = players.find(function(item) {
+        return item.name === editButton.dataset.editCampus;
+    });
+    if (!player) return;
+
+    const campus = prompt(
+        "Enter " + player.name + "'s campus or institution (leave blank to clear):",
+        player.campus || ""
+    );
+    if (campus === null) return;
+
+    player.campus = campus.trim();
+    localStorage.setItem("scrabblePlayers", JSON.stringify(players));
+    renderPlayers();
+    updateStatistics();
+});
 document.getElementById("annotationTournament").addEventListener("change", function() {
     updateRoundOptions(
         document.getElementById("annotationTournament"),
