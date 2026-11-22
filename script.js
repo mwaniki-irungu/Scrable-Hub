@@ -13,13 +13,13 @@ const boardDetails = {
     "average-scores": ["Average Scores", "Players ranked by average points scored per game."],
     "average-opponent": ["Average Opponent Score", "Average points scored by each player's opponents."],
     combined: ["High Combined Score", "Games ranked by the combined score of both players."],
-    "high-losses": ["High Losses", "Players ranked by number of games lost."],
+    "high-losses": ["High Losses", "Players ranked by losses, with spread breaking ties."],
     spreads: ["High Spreads", "Games ranked by the winning margin."],
-    "high-wins": ["High Wins", "Players ranked by number of games won."],
+    "high-wins": ["High Wins", "Players ranked by wins, with spread breaking ties."],
     "low-losses": ["Low Losses", "Players ranked by fewest losses (players with games only)."],
     "low-wins": ["Low Wins", "Players ranked by fewest wins (players with games only)."],
     "lucky-stiffs": ["Lucky Stiffs", "Highest individual scores from games the player lost."],
-    "scoreboard-1-16": ["Scoreboard 1–16", "Tournament-style standings, showing the top 16 players."],
+    "scoreboard-1-16": ["Scoreboard 1–16", "Top 16 tournament standings, ranked by wins then spread."],
     "score-card": ["Score Card", "Recorded game results, including round and tournament."],
     "high-total": ["High Total Scores", "Players ranked by total points scored across games."],
     "tuff-luck": ["Tuff Luck Rating", "Players with the most close losses (10 points or fewer)."],
@@ -68,6 +68,7 @@ function updateDashboard() {
     populateTournamentOptions();
     renderPlayers();
     renderPairings();
+    updateCompletedTournamentPanel();
     renderAnnotationPage();
     updateStatistics();
 }
@@ -237,6 +238,31 @@ function getMatchForPairing(pairing) {
             ((match.player1 === pairing.player1 && match.player2 === pairing.player2) ||
                 (match.player1 === pairing.player2 && match.player2 === pairing.player1));
     });
+}
+
+function isTournamentComplete(tournament) {
+    const roundCount = Number(tournament.rounds);
+    if (!Number.isInteger(roundCount) || roundCount < 1) return false;
+
+    for (let round = 1; round <= roundCount; round += 1) {
+        const roundPairings = getPairingsForRound(tournament.name, round);
+        if (!roundPairings.length || roundPairings.some(function(pairing) {
+            return !pairing.bye && !getMatchForPairing(pairing);
+        })) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function updateCompletedTournamentPanel() {
+    const panel = document.getElementById("completedTournamentPanel");
+    const latestTournament = tournaments[tournaments.length - 1];
+    const isComplete = latestTournament && isTournamentComplete(latestTournament);
+    panel.hidden = !isComplete;
+    if (isComplete) {
+        document.getElementById("completedTournamentName").textContent = latestTournament.name;
+    }
 }
 
 function getWithdrawnPlayers(tournamentName) {
@@ -913,15 +939,15 @@ function getBoardMarkup(games, stats) {
             return renderGamesBoard(games, gamesByTotal);
         case "high-losses":
             return renderPlayerBoard(games, stats, {
-                metric: "losses", direction: 1, headers: ["#", "Player", "Losses", "Games", "Wins"],
-                row: function(player, rank) { return [rank, player.name, player.losses, player.games, player.wins]; }
+                metric: "losses", direction: 1, headers: ["#", "Player", "Losses", "Spread", "Games", "Wins"],
+                row: function(player, rank) { return [rank, player.name, player.losses, player.spread, player.games, player.wins]; }
             });
         case "spreads":
             return renderGamesBoard(games, gamesBySpread);
         case "high-wins":
             return renderPlayerBoard(games, stats, {
-                metric: "wins", direction: 1, headers: ["#", "Player", "Wins", "Games", "Losses"],
-                row: function(player, rank) { return [rank, player.name, player.wins, player.games, player.losses]; }
+                metric: "wins", direction: 1, headers: ["#", "Player", "Wins", "Spread", "Games", "Losses"],
+                row: function(player, rank) { return [rank, player.name, player.wins, player.spread, player.games, player.losses]; }
             });
         case "low-losses":
             return renderPlayerBoard(games, stats, {
@@ -1079,7 +1105,7 @@ function showPage(page) {
     if (page === "statistics") updateStatistics();
 }
 
-document.getElementById("newTournamentBtn").addEventListener("click", function() {
+function createTournamentFromPrompts() {
     const name = prompt("Enter tournament name:");
     if (!name || !name.trim()) return;
     if (tournaments.some(function(tournament) {
@@ -1117,7 +1143,10 @@ document.getElementById("newTournamentBtn").addEventListener("click", function()
     document.getElementById("pairingsRound").value = "1";
     updateDashboard();
     alert("Tournament created successfully!");
-});
+}
+
+document.getElementById("newTournamentBtn").addEventListener("click", createTournamentFromPrompts);
+document.getElementById("startAnotherTournamentBtn").addEventListener("click", createTournamentFromPrompts);
 
 document.getElementById("registerPlayerBtn").addEventListener("click", openPlayerDialog);
 document.getElementById("playersRegisterBtn").addEventListener("click", openPlayerDialog);

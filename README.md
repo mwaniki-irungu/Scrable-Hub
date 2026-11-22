@@ -9,8 +9,9 @@ ScrabbleHub is a browser-based app for managing Scrabble tournaments, players, g
 3. Select **New Tournament** and enter the tournament name, venue, date, and number of rounds.
 4. Open **Pairings** and select the tournament. Pairings are generated when at least two eligible players are registered.
 5. Record scores for the current round. The next round is generated automatically after every game in the round has a score.
-6. Select **Annotate** beside a pairing, or open **Annotation**, to record each move.
-7. Open **Statistics** to browse the scoreboards and compare institutions. Use the tournament selector to filter results.
+6. After all scheduled rounds of the latest tournament are complete, choose **Start another tournament** on the Dashboard. Previous tournaments and results are kept.
+7. Select **Annotate** beside a pairing, or open **Annotation**, to record each move.
+8. Open **Statistics** to browse the scoreboards and compare institutions. Use the tournament selector to filter results.
 
 ScrabbleHub is a static front-end app. It requires no build step or package installation.
 
@@ -20,6 +21,7 @@ ScrabbleHub is a static front-end app. It requires no build step or package inst
 - Browse and search the player directory, including player ratings, campus assignments, and recorded results.
 - Edit a player's campus or institution assignment in the Players directory.
 - Create tournaments with a venue, date, and round count.
+- Start another tournament from the Dashboard after the latest tournament's scheduled rounds are complete; previous results are preserved.
 - Generate Swiss pairings. The first round is rating-seeded; later rounds follow standings. Repeat opponents are avoided. If a complete set of non-rematch pairings cannot be made, the round remains unpaired. When the number of eligible players is odd, one eligible player receives a bye.
 - Use **Kick out** beside an unavailable player in **Pairings** to exclude them from future rounds. Current-round pairings and recorded results stay unchanged; the player can be reinstated for subsequent rounds.
 - Record game scores, rounds, and tournament associations.
@@ -33,12 +35,14 @@ ScrabbleHub is a static front-end app. It requires no build step or package inst
 
 Statistics are calculated from recorded games:
 
+A player's spread is total points scored minus total points conceded. In standings, more wins rank first; the higher spread breaks a tie in wins.
+
 - **Enhanced scoreboard** — games played, wins, losses, draws, points, average score, and spread.
 - **Average scores** — each player's average points per game.
 - **Average opponent score** — the average score opponents earned in those games.
 - **High combined score** — games ranked by the sum of both players' scores.
-- **High losses / Low losses** — players ranked by most or fewest losses.
-- **High wins / Low wins** — players ranked by most or fewest wins.
+- **High losses / Low losses** — players ranked by most or fewest losses, with spread breaking ties; High Losses also shows spread.
+- **High wins / Low wins** — players ranked by most or fewest wins, with spread breaking ties; High Wins also shows spread.
 - **High spreads** — games ranked by the absolute difference between the two scores.
 - **Lucky stiffs** — losing games ranked by the loser's score.
 - **Scoreboard 1–16** — the top 16 players ranked by wins, then spread.

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCRABBLEHUB | Tournament Manager</title>
 
-    <link rel="stylesheet" href="style.css?v=20261122-sk-mark">
+    <link rel="stylesheet" href="style.css?v=20261122-next-tournament">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -105,6 +105,18 @@
                 <small>Rounds awaiting scores</small>
             </div>
 
+        </section>
+
+        <section id="completedTournamentPanel" class="panel completed-tournament-panel" hidden
+            aria-labelledby="completedTournamentName">
+            <div>
+                <span class="eyebrow">TOURNAMENT COMPLETE</span>
+                <h3 id="completedTournamentName"></h3>
+                <p>All scheduled rounds are complete. Previous tournament results will be kept.</p>
+            </div>
+            <button type="button" class="primary-btn" id="startAnotherTournamentBtn">
+                + Start another tournament
+            </button>
         </section>
 
         <section class="content-grid">
@@ -412,7 +424,7 @@
     </form>
 </dialog>
 
-<script src="script.js?v=20261122-kickout"></script>
+<script src="script.js?v=20261122-next-tournament"></script>
 
 </body>
 </html>
