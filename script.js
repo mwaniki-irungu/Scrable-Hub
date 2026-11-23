@@ -107,6 +107,7 @@ function updateDashboard() {
     document.getElementById("activeRounds").textContent = activeRounds;
     displayTournaments();     renderDashboardRatings();
     populateTournamentOptions();
+    populatePrizeTournamentOptions();
     renderPlayers();
     renderPairings();
     updateNextTournamentPanel();
@@ -839,6 +840,147 @@ function getFilteredMatches() {
     });
 }
 
+function populatePrizeTournamentOptions() {
+    const select = document.getElementById("prizeTournament");
+    const selected = select.value;
+    select.innerHTML = '<option value="">Select a tournament</option>';
+    tournaments.forEach(function(tournament) {
+        const option = document.createElement("option");
+        option.value = tournament.name;
+        option.textContent = tournament.name;
+        select.appendChild(option);
+    });
+
+    if (selected && Array.from(select.options).some(function(option) {
+        return option.value === selected;
+    })) {
+        select.value = selected;
+    } else if (tournaments.length) {
+        select.value = tournaments[tournaments.length - 1].name;
+    }
+    updatePrizeAwards();
+}
+
+function getTournamentMatches(tournamentName) {
+    return matches.filter(function(match) {
+        return !tournamentName || tournamentName === "all" || match.tournament === tournamentName;
+    }).filter(function(match) {
+        return match.player1 && match.player2 &&
+            Number.isFinite(Number(match.score1)) && Number.isFinite(Number(match.score2));
+    });
+}
+
+function getPrizeAwards(tournamentName) {
+    const stats = getStats(getTournamentMatches(tournamentName)).sort(function(a, b) {
+        return b.wins - a.wins || b.spread - a.spread || a.name.localeCompare(b.name);
+    });
+
+    if (!stats.length) {
+        return {
+            rows: [
+                ["Overall winner", "No scored games yet", "Record tournament scores to calculate standings."],
+                ["Runner-up", "No scored games yet", "Record tournament scores to calculate standings."],
+                ["Highest spread", "No scored games yet", "Record tournament scores to calculate spreads."]
+            ],
+            awards: []
+        };
+    }
+
+    function sameStanding(first, second) {
+        return first.wins === second.wins && first.spread === second.spread;
+    }
+
+    function groupAtRank(rankIndex) {
+        const rankedPlayer = stats[rankIndex];
+        return rankedPlayer ? stats.filter(function(player) {
+            return sameStanding(player, rankedPlayer);
+        }) : [];
+    }
+
+    const winners = groupAtRank(0);
+    const nextStandingIndex = stats.findIndex(function(player) {
+        return !sameStanding(player, winners[0]);
+    });
+    const runnersUp = nextStandingIndex < 0 ? [] : groupAtRank(nextStandingIndex);
+    const highestSpread = Math.max.apply(null, stats.map(function(player) { return player.spread; }));
+    const spreadWinners = stats.filter(function(player) { return player.spread === highestSpread; });
+
+    function names(group) {
+        return group.map(function(player) { return player.name; }).join(", ");
+    }
+
+    function standingsResult(group) {
+        return group.length ? group[0].wins + " wins; spread " + group[0].spread : "—";
+    }
+
+    const awards = [
+        { title: "Overall winner", recipients: winners, result: standingsResult(winners) },
+        { title: "Runner-up", recipients: runnersUp, result: standingsResult(runnersUp) },
+        { title: "Highest spread", recipients: spreadWinners, result: "Spread " + highestSpread }
+    ];
+
+    return {
+        awards: awards,
+        rows: awards.map(function(award) {
+            return [
+                award.title,
+                names(award.recipients) || "Not awarded",
+                award.recipients.length ? award.result : "No separate runner-up"
+            ];
+        })
+    };
+}
+
+function updatePrizeAwards() {
+    const tournamentName = document.getElementById("prizeTournament").value;
+    document.getElementById("downloadPrizeSlidesBtn").disabled = !tournamentName;
+    const table = document.getElementById("prizeAwards");
+    if (!tournamentName) {
+        table.innerHTML = '<p class="page-notice">Create a tournament to prepare its prize awards.</p>';
+        return;
+    }
+    table.innerHTML = createTable(["Award", "Recipient(s)", "Result"], getPrizeAwards(tournamentName).rows);
+}
+
+function downloadPrizeSlides() {
+    const tournamentName = document.getElementById("prizeTournament").value;
+    if (!tournamentName) return;
+
+    const awards = getPrizeAwards(tournamentName).awards;
+    const slides = awards.length ? awards.map(function(award) {
+        const recipients = award.recipients.map(function(player) {
+            return escapeHtml(player.name);
+        }).join(", ") || "Not awarded";
+        const result = award.recipients.length ? escapeHtml(award.result) : "No scored games yet";
+        return '<section class="slide"><p class="eyebrow">' + escapeHtml(tournamentName) +
+            '</p><h2>' + escapeHtml(award.title) + '</h2><p class="recipient">' + recipients +
+            '</p><p class="result">' + result + '</p></section>';
+    }).join("") : '<section class="slide"><h2>' + escapeHtml(tournamentName) +
+        '</h2><p>No scored games yet.</p></section>';
+    const documentContent = '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+        '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+        '<title>' + escapeHtml(tournamentName) + ' prize slides</title><style>' +
+        'html{font-family:Arial,sans-serif;color:#173c31}body{margin:0;background:#f4f7f5}' +
+        '.slide{box-sizing:border-box;min-height:100vh;padding:10vh 12vw;display:flex;flex-direction:column;' +
+        'justify-content:center;page-break-after:always;background:linear-gradient(135deg,#fff,#e8f2ed)}' +
+        '.eyebrow{font-size:1.2rem;text-transform:uppercase;letter-spacing:.15em;color:#527366}' +
+        'h2{font-size:4rem;margin:.5em 0}.recipient{font-size:3rem;font-weight:700}.result{font-size:1.5rem}' +
+        '@media print{.slide{min-height:100vh}}' +
+        '</style></head><body><section class="slide"><p class="eyebrow">SCRABBLEHUB AWARDS</p>' +
+        '<h1>' + escapeHtml(tournamentName) + '</h1><p>Prize presentation</p></section>' +
+        slides + '</body></html>';
+    const blob = new Blob([documentContent], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    const safeName = tournamentName.replace(/[\\/:*?"<>|]+/g, "-").trim() || "tournament";
+    anchor.href = url;
+    anchor.download = safeName + "-prize-slides.html";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+}
+
 function matchRound(match) {
     return match.round ? "Round " + match.round : "Unassigned";
 }
@@ -1318,7 +1460,8 @@ function showPage(page) {
         players: "playersPage",
         pairings: "pairingsPage",
         annotation: "annotationPage",
-        statistics: "statisticsPage"
+        statistics: "statisticsPage",
+        prizes: "prizesPage"
     };
     Object.keys(pageIds).forEach(function(pageName) {
         document.getElementById(pageIds[pageName]).hidden = pageName !== page;
@@ -1330,6 +1473,7 @@ function showPage(page) {
     if (page === "pairings") renderPairings();
     if (page === "annotation") updateAnnotationPairingOptions();
     if (page === "statistics") updateStatistics();
+    if (page === "prizes") updatePrizeAwards();
 }
 
 function createTournamentFromForm(event) {
@@ -1503,6 +1647,8 @@ document.querySelectorAll(".scoreboard-link").forEach(function(link) {
 });
 
 document.getElementById("statisticsTournament").addEventListener("change", updateStatistics);
+document.getElementById("prizeTournament").addEventListener("change", updatePrizeAwards);
+document.getElementById("downloadPrizeSlidesBtn").addEventListener("click", downloadPrizeSlides);
 document.getElementById("pairingsTournament").addEventListener("change", function() {
     const tournamentSelect = document.getElementById("pairingsTournament");
     const roundSelect = document.getElementById("pairingsRound");
