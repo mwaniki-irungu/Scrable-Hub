@@ -105,7 +105,7 @@ function updateDashboard() {
     document.getElementById("totalTournaments").textContent = tournaments.length;
     document.getElementById("totalMatches").textContent = matches.length;
     document.getElementById("activeRounds").textContent = activeRounds;
-    displayTournaments();
+    displayTournaments();     renderDashboardRatings();
     populateTournamentOptions();
     renderPlayers();
     renderPairings();
@@ -114,7 +114,7 @@ function updateDashboard() {
     updateStatistics();
 }
 
-function displayTournaments() {
+function renderDashboardRatings() {     const sortedPlayers = players.slice().sort(function(a, b) {         return (Number(b.rating) || 0) - (Number(a.rating) || 0) || a.name.localeCompare(b.name);     });     document.getElementById("dashboardRatingsCount").textContent = sortedPlayers.length + (sortedPlayers.length === 1 ? " registered player" : " registered players");     const rows = sortedPlayers.map(function(player, index) {         return [index + 1, player.name, Number(player.rating) || 0, player.campus || "Not assigned"];     });     document.getElementById("dashboardRatings").innerHTML = createTable(["Rank", "Player", "Rating", "Campus / institution"], rows); }  function displayTournaments() {
     const list = document.getElementById("tournamentList");
 
     if (tournaments.length === 0) {
