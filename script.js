@@ -1376,7 +1376,9 @@ function createTournamentFromForm(event) {
     document.getElementById("pairingsRound").value = "1";
     renderPairings();
     document.getElementById("playersTournament").value = name;
-    renderPlayers();
+    document.getElementById("playerRosterNotice").textContent =
+        "New tournament created with an empty roster. Register new players or use Add to roster for existing directory players.";
+    showPage("players");
 }
 
 document.getElementById("newTournamentBtn").addEventListener("click", openTournamentDialog);

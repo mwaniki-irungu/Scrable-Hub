@@ -10,7 +10,7 @@ ScrabbleHub is a browser-based app for managing Scrabble tournaments, players, g
 4. Add at least two participants to the selected roster. Pairings use only players assigned to that tournament.
 5. Open **Pairings** and select the tournament. Pairings are generated when at least two eligible participants are assigned.
 6. Record scores for the current round. The next round is generated automatically after every game in the round has a score.
-7. After all scheduled rounds of the latest tournament are complete, choose **Start another tournament** on the Dashboard. Previous tournaments and results are kept.
+7. After all scheduled rounds of the latest tournament are complete, choose **Refresh for next tournament** on the Dashboard. The new event starts with an empty roster and opens the Players page so you can register new players or add existing directory players. Previous tournaments and results are kept.
 8. Select **Annotate** beside a pairing, or open **Annotation**, to record each move.
 9. Open **Statistics** to browse the scoreboards and compare institutions. Use the tournament selector to filter results.
 
@@ -23,7 +23,7 @@ ScrabbleHub is a static front-end app. It requires no build step or package inst
 - Edit a player's campus or institution assignment in the Players directory.
 - Create tournaments with a venue, date, and round count.
 - Use in-page forms and confirmations for tournament setup, player registration, campus edits, and kick-out or reinstatement actions.
-- Start another tournament from the Dashboard after the latest tournament's scheduled rounds are complete; previous results are preserved.
+- Start the next tournament from the Dashboard after the latest tournament's scheduled rounds are complete. The new event has an empty roster and opens the Players page for adding its participants; previous results are preserved.
 - Maintain a separate participant roster for each tournament. New tournaments start with an empty roster, while the player directory and past results are retained. Legacy tournaments keep their existing player eligibility.
 - Download the selected tournament's player names, ratings, and campuses as CSV, then attach the file in WhatsApp. The WhatsApp action opens a prefilled message; it does not send automatically. Ratings stay saved in this browser.
 - Generate Swiss pairings. The first round is rating-seeded; later rounds follow standings. Repeat opponents are avoided. If a complete set of non-rematch pairings cannot be made, the round remains unpaired. When the number of eligible players is odd, one eligible player receives a bye.
