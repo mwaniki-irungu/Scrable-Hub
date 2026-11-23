@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCRABBLEHUB | Tournament Manager</title>
 
-    <link rel="stylesheet" href="style.css?v=tournament-rosters-sharing-1">
+    <link rel="stylesheet" href="style.css?v=browser-dialogs-1">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -130,7 +130,7 @@
                 <div id="tournamentList" class="empty-state">
                     <div>🏆</div>
                     <h3>No tournaments yet</h3>
-                    <p>Create your first tournament to get started.</p>
+                t to get started.</p>
                 </div>
             </div>
 
@@ -450,7 +450,76 @@
     </form>
 </dialog>
 
-<script src="script.js?v=tournament-rosters-sharing-1"></script>
+<dialog id="tournamentDialog" class="score-dialog">
+    <form id="tournamentForm" autocomplete="off">
+        <div class="dialog-heading">
+            <div>
+                <span class="eyebrow">TOURNAMENT SETUP</span>
+                <h2>New tournament</h2>
+            </div>
+            <button type="button" class="dialog-close" id="closeTournamentDialog" aria-label="Close">×</button>
+        </div>
+        <label>
+            Tournament name
+            <input id="tournamentName" type="text" maxlength="100" required>
+        </label>
+        <label>
+            Venue
+            <input id="tournamentVenue" type="text" maxlength="100" required>
+        </label>
+        <label>
+            Date
+            <input id="tournamentDate" type="text" maxlength="40" placeholder="e.g. 21/11/2026" required>
+        </label>
+        <label>
+            Number of rounds
+            <input id="tournamentRounds" type="number" min="1" step="1" required>
+        </label>
+        <p id="tournamentFormError" class="form-error" role="alert"></p>
+        <div class="dialog-actions">
+            <button type="button" class="secondary-btn" id="cancelTournamentDialog">Cancel</button>
+            <button type="submit" class="primary-btn">Create tournament</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="campusDialog" class="score-dialog">
+    <form id="campusForm" autocomplete="off">
+        <div class="dialog-heading">
+            <div>
+                <span class="eyebrow">PLAYER DIRECTORY</span>
+                <h2>Edit campus</h2>
+            </div>
+            <button type="button" class="dialog-close" id="closeCampusDialog" aria-label="Close">×</button>
+        </div>
+        <label>
+            Campus or institution
+            <input id="campusValue" type="text" maxlength="100">
+        </label>
+        <p class="player-roster-help">Leave blank to remove the campus assignment.</p>
+        <div class="dialog-actions">
+            <button type="button" class="secondary-btn" id="cancelCampusDialog">Cancel</button>
+            <button type="submit" class="primary-btn">Save campus</button>
+        </div>
+    </form>
+</dialog>
+
+<dialog id="withdrawalDialog" class="score-dialog">
+    <div class="dialog-heading">
+        <div>
+            <span class="eyebrow">PAIRING MANAGEMENT</span>
+            <h2 id="withdrawalDialogTitle">Confirm player change</h2>
+        </div>
+        <button type="button" class="dialog-close" id="closeWithdrawalDialog" aria-label="Close">×</button>
+    </div>
+    <p id="withdrawalDialogMessage" class="page-notice"></p>
+    <div class="dialog-actions">
+        <button type="button" class="secondary-btn" id="cancelWithdrawalDialog">Cancel</button>
+        <button type="button" class="primary-btn" id="confirmWithdrawalButton">Kick out</button>
+    </div>
+</dialog>
+
+<script src="script.js?v=browser-dialogs-1"></script>
 
 </body>
 </html>

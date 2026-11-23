@@ -22,6 +22,7 @@ ScrabbleHub is a static front-end app. It requires no build step or package inst
 - Browse and search the player directory, including player ratings, campus assignments, and recorded results.
 - Edit a player's campus or institution assignment in the Players directory.
 - Create tournaments with a venue, date, and round count.
+- Use in-page forms and confirmations for tournament setup, player registration, campus edits, and kick-out or reinstatement actions.
 - Start another tournament from the Dashboard after the latest tournament's scheduled rounds are complete; previous results are preserved.
 - Maintain a separate participant roster for each tournament. New tournaments start with an empty roster, while the player directory and past results are retained. Legacy tournaments keep their existing player eligibility.
 - Download the selected tournament's player names, ratings, and campuses as CSV, then attach the file in WhatsApp. The WhatsApp action opens a prefilled message; it does not send automatically. Ratings stay saved in this browser.

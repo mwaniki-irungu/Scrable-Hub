@@ -17,6 +17,8 @@ if (tournamentRosterMigrationNeeded) {
 }
 let activeRounds = 0;
 let currentBoard = "enhanced";
+let editingCampusPlayerName = "";
+let pendingWithdrawal = null;
 
 const boardDetails = {
     enhanced: ["Enhanced Scoreboard", "A complete view of wins, losses, points and averages."],
@@ -1214,20 +1216,23 @@ function updateStatistics() {
 }
 
 function openScoreDialog(context) {
-    if (players.length < 2) {
-        alert("Register at least two players before entering a score.");
-        return;
-    }
     const form = document.getElementById("scoreForm");
+    form.reset();
+    document.getElementById("scoreFormError").textContent = "";
     const player1Select = document.getElementById("scorePlayer1");
     const player2Select = document.getElementById("scorePlayer2");
     const tournamentSelect = document.getElementById("scoreTournament");
     const roundInput = document.getElementById("scoreRound");
-    form.reset();
     [player1Select, player2Select, tournamentSelect, roundInput].forEach(function(field) {
         field.disabled = false;
     });
-    document.getElementById("scoreFormError").textContent = "";
+    if (players.length < 2) {
+        populatePlayerOptions(tournamentSelect.value);
+        document.getElementById("scoreFormError").textContent =
+            "Register at least two players before entering a score.";
+        document.getElementById("scoreDialog").showModal();
+        return;
+    }
     if (context) {
         tournamentSelect.value = context.tournament;
     }
@@ -1255,6 +1260,58 @@ function openPlayerDialog() {
     document.getElementById("playerDialog").showModal();
 }
 
+function openCampusDialog(playerName) {
+    const player = players.find(function(item) { return item.name === playerName; });
+    if (!player) return;
+    editingCampusPlayerName = playerName;
+    document.getElementById("campusValue").value = player.campus || "";
+    document.getElementById("campusDialog").showModal();
+}
+
+function openTournamentDialog() {
+    document.getElementById("tournamentForm").reset();
+    document.getElementById("tournamentFormError").textContent = "";
+    document.getElementById("tournamentDialog").showModal();
+}
+
+function openWithdrawalDialog(tournamentName, playerName) {
+    const withdrawn = isPlayerWithdrawn(tournamentName, playerName);
+    pendingWithdrawal = {
+        tournamentName: tournamentName,
+        playerName: playerName,
+        withdrawn: withdrawn
+    };
+    document.getElementById("withdrawalDialogTitle").textContent =
+        withdrawn ? "Reinstate player?" : "Kick out player?";
+    document.getElementById("withdrawalDialogMessage").textContent = withdrawn ?
+        playerName + " will be included in pairings generated from now on." :
+        playerName + "'s current-round pairings and recorded results will stay unchanged. " +
+            "They will be left out of later rounds.";
+    document.getElementById("confirmWithdrawalButton").textContent = withdrawn ? "Reinstate" : "Kick out";
+    document.getElementById("withdrawalDialog").showModal();
+}
+
+function confirmPlayerWithdrawal() {
+    if (!pendingWithdrawal) return;
+    const tournament = tournaments.find(function(item) {
+        return item.name === pendingWithdrawal.tournamentName;
+    });
+    if (!tournament) return;
+
+    if (!Array.isArray(tournament.withdrawnPlayers)) tournament.withdrawnPlayers = [];
+    if (pendingWithdrawal.withdrawn) {
+        tournament.withdrawnPlayers = tournament.withdrawnPlayers.filter(function(name) {
+            return name !== pendingWithdrawal.playerName;
+        });
+    } else if (tournament.withdrawnPlayers.indexOf(pendingWithdrawal.playerName) === -1) {
+        tournament.withdrawnPlayers.push(pendingWithdrawal.playerName);
+    }
+    localStorage.setItem("scrabbleTournaments", JSON.stringify(tournaments));
+    pendingWithdrawal = null;
+    document.getElementById("withdrawalDialog").close();
+    renderPairings();
+}
+
 function showPage(page) {
     const pageIds = {
         dashboard: "dashboardPage",
@@ -1275,56 +1332,62 @@ function showPage(page) {
     if (page === "statistics") updateStatistics();
 }
 
-function createTournamentFromPrompts() {
-    const name = prompt("Enter tournament name:");
-    if (!name || !name.trim()) return;
-    if (tournaments.some(function(tournament) {
-        return tournament.name.toLowerCase() === name.trim().toLowerCase();
-    })) {
-        alert("A tournament with that name already exists.");
+function createTournamentFromForm(event) {
+    event.preventDefault();
+    const name = document.getElementById("tournamentName").value.trim();
+    const venue = document.getElementById("tournamentVenue").value.trim();
+    const date = document.getElementById("tournamentDate").value.trim();
+    const rounds = Number(document.getElementById("tournamentRounds").value);
+    const error = document.getElementById("tournamentFormError");
+
+    if (!name || !venue || !date) {
+        error.textContent = "Enter the tournament name, venue, and date.";
         return;
     }
-
-    const venue = prompt("Enter tournament venue:");
-    if (!venue || !venue.trim()) return;
-
-    const date = prompt("Enter tournament date (e.g. 21/11/2026):");
-    if (!date || !date.trim()) return;
-
-    const rounds = Number(prompt("How many rounds?"));
+    if (tournaments.some(function(tournament) {
+        return tournament.name.toLowerCase() === name.toLowerCase();
+    })) {
+        error.textContent = "A tournament with that name already exists.";
+        return;
+    }
     if (!Number.isInteger(rounds) || rounds < 1) {
-        alert("Please enter a valid number of rounds.");
+        error.textContent = "Enter a whole number of rounds greater than zero.";
         return;
     }
 
     tournaments.push({
-        name: name.trim(),
-        venue: venue.trim(),
-        date: date.trim(),
+        name: name,
+        venue: venue,
+        date: date,
         rounds: rounds,
         playerNames: []
     });
     saveTournaments();
+    document.getElementById("tournamentDialog").close();
+    document.getElementById("tournamentForm").reset();
+    updateDashboard();
     const pairingsTournament = document.getElementById("pairingsTournament");
-    const newTournamentOption = document.createElement("option");
-    newTournamentOption.value = name.trim();
-    newTournamentOption.textContent = name.trim();
-    pairingsTournament.appendChild(newTournamentOption);
-    pairingsTournament.value = name.trim();
+    pairingsTournament.value = name;
     updateRoundOptions(
         pairingsTournament,
         document.getElementById("pairingsRound"),
         "Select a tournament first"
     );
     document.getElementById("pairingsRound").value = "1";
-    updateDashboard();
-    document.getElementById("playersTournament").value = name.trim();
+    renderPairings();
+    document.getElementById("playersTournament").value = name;
     renderPlayers();
-    alert("Tournament created successfully. Add its participants from the Players page.");
 }
 
-document.getElementById("newTournamentBtn").addEventListener("click", createTournamentFromPrompts);
-document.getElementById("startAnotherTournamentBtn").addEventListener("click", createTournamentFromPrompts);
+document.getElementById("newTournamentBtn").addEventListener("click", openTournamentDialog);
+document.getElementById("startAnotherTournamentBtn").addEventListener("click", openTournamentDialog);
+document.getElementById("tournamentForm").addEventListener("submit", createTournamentFromForm);
+document.getElementById("closeTournamentDialog").addEventListener("click", function() {
+    document.getElementById("tournamentDialog").close();
+});
+document.getElementById("cancelTournamentDialog").addEventListener("click", function() {
+    document.getElementById("tournamentDialog").close();
+});
 
 document.getElementById("registerPlayerBtn").addEventListener("click", openPlayerDialog);
 document.getElementById("playersRegisterBtn").addEventListener("click", openPlayerDialog);
@@ -1377,6 +1440,24 @@ document.getElementById("closePlayerDialog").addEventListener("click", function(
 });
 document.getElementById("cancelPlayerDialog").addEventListener("click", function() {
     document.getElementById("playerDialog").close();
+});
+
+document.getElementById("closeCampusDialog").addEventListener("click", function() {
+    document.getElementById("campusDialog").close();
+});
+document.getElementById("cancelCampusDialog").addEventListener("click", function() {
+    document.getElementById("campusDialog").close();
+});
+document.getElementById("campusForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const player = players.find(function(item) { return item.name === editingCampusPlayerName; });
+    if (!player) return;
+
+    player.campus = document.getElementById("campusValue").value.trim();
+    localStorage.setItem("scrabblePlayers", JSON.stringify(players));
+    document.getElementById("campusDialog").close();
+    renderPlayers();
+    updateStatistics();
 });
 
 document.getElementById("createPairingBtn").addEventListener("click", function() {
@@ -1464,22 +1545,7 @@ document.getElementById("playersTable").addEventListener("click", function(event
 
     const editButton = event.target.closest("[data-edit-campus]");
     if (!editButton) return;
-
-    const player = players.find(function(item) {
-        return item.name === editButton.dataset.editCampus;
-    });
-    if (!player) return;
-
-    const campus = prompt(
-        "Enter " + player.name + "'s campus or institution (leave blank to clear):",
-        player.campus || ""
-    );
-    if (campus === null) return;
-
-    player.campus = campus.trim();
-    localStorage.setItem("scrabblePlayers", JSON.stringify(players));
-    renderPlayers();
-    updateStatistics();
+    openCampusDialog(editButton.dataset.editCampus);
 });
 document.getElementById("scoreTournament").addEventListener("change", function() {
     populatePlayerOptions(this.value);
@@ -1497,35 +1563,25 @@ document.getElementById("annotationTournament").addEventListener("change", funct
 });
 document.getElementById("annotationRound").addEventListener("change", updateAnnotationPairingOptions);
 document.getElementById("annotationPairing").addEventListener("change", renderAnnotationPage);
+document.getElementById("closeWithdrawalDialog").addEventListener("click", function() {
+    pendingWithdrawal = null;
+    document.getElementById("withdrawalDialog").close();
+});
+document.getElementById("cancelWithdrawalDialog").addEventListener("click", function() {
+    pendingWithdrawal = null;
+    document.getElementById("withdrawalDialog").close();
+});
+document.getElementById("confirmWithdrawalButton").addEventListener("click", confirmPlayerWithdrawal);
+document.getElementById("withdrawalDialog").addEventListener("cancel", function() {
+    pendingWithdrawal = null;
+});
 document.getElementById("pairingsTable").addEventListener("click", function(event) {
     const withdrawalButton = event.target.closest("[data-toggle-withdrawal]");
     if (withdrawalButton) {
-        const playerName = withdrawalButton.dataset.toggleWithdrawal;
-        const tournamentName = withdrawalButton.dataset.withdrawalTournament;
-        const withdrawn = isPlayerWithdrawn(tournamentName, playerName);
-        const action = withdrawn ? "reinstate" : "kick out";
-        const details = withdrawn ?
-            "They will be included in pairings generated from now on." :
-            "Their current-round pairings and recorded results will remain unchanged; they will be left out of later rounds.";
-        if (!confirm("Are you sure you want to " + action + " " + playerName +
-            (withdrawn ? " for " : " from ") + tournamentName + "? " + details)) {
-            return;
-        }
-
-        const tournament = tournaments.find(function(item) {
-            return item.name === tournamentName;
-        });
-        if (!tournament) return;
-        if (!Array.isArray(tournament.withdrawnPlayers)) tournament.withdrawnPlayers = [];
-        if (withdrawn) {
-            tournament.withdrawnPlayers = tournament.withdrawnPlayers.filter(function(name) {
-                return name !== playerName;
-            });
-        } else {
-            tournament.withdrawnPlayers.push(playerName);
-        }
-        localStorage.setItem("scrabbleTournaments", JSON.stringify(tournaments));
-        renderPairings();
+        openWithdrawalDialog(
+            withdrawalButton.dataset.withdrawalTournament,
+            withdrawalButton.dataset.toggleWithdrawal
+        );
         return;
     }
 
