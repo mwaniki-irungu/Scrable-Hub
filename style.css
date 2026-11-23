@@ -30,6 +30,8 @@ body {
 /* SIDEBAR */
 
 .sidebar {
+    top: 0;
+    overflow-y: auto;
     width: 260px;
     background: #102f28;
     color: white;
