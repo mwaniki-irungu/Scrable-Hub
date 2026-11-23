@@ -988,3 +988,24 @@ footer {
         min-width: 100%;
     }
 }
+
+.prizes-page > .topbar {
+    margin-bottom: 24px;
+}
+
+.prize-panel {
+    margin-bottom: 22px;
+}
+
+.prize-header p {
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+@media (max-width: 700px) {
+    .prize-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
