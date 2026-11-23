@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCRABBLEHUB | Tournament Manager</title>
 
-    <link rel="stylesheet" href="style.css?v=dashboard-player-ratings-1">
+    <link rel="stylesheet" href="style.css?v=tournament-prizes-1">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -41,6 +41,7 @@
 
         <nav>
             <a href="#" data-page="statistics">📊 Statistics</a>
+            <a href="#" data-page="prizes">🏅 Prizes</a>
             <a href="#">📁 Reports</a>
             <a href="#">⚙ Settings</a>
         </nav>
@@ -371,7 +372,35 @@
             </footer>
         </section>
 
-    </main>
+            <section id="prizesPage" class="app-page prizes-page" hidden>
+            <header class="topbar">
+                <div>
+                    <h1>Tournament Prizes</h1>
+                    <p>Recognize the tournament winner, runner-up, and highest spread.</p>
+                </div>
+                <button type="button" class="primary-btn" id="downloadPrizeSlidesBtn" disabled>
+                    Download prize slides
+                </button>
+            </header>
+            <section class="panel prize-panel">
+                <div class="panel-header prize-header">
+                    <div>
+                        <h3>Award table</h3>
+                        <p>Overall standings rank players by wins, then spread.</p>
+                    </div>
+                    <label class="tournament-filter">
+                        Tournament
+                        <select id="prizeTournament">
+                            <option value="">Select a tournament</option>
+                        </select>
+                    </label>
+                </div>
+                <div id="prizeAwards" class="table-wrap"></div>
+            </section>
+            <footer>SCRABBLEHUB © 2026 | Tournament Management System</footer>
+        </section>
+
+</main>
 
 </div>
 
@@ -529,7 +558,7 @@
     </div>
 </dialog>
 
-<script src="script.js?v=dashboard-player-ratings-1"></script>
+<script src="script.js?v=tournament-prizes-1"></script>
 
 </body>
 </html>

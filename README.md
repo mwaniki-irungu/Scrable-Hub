@@ -13,6 +13,7 @@ ScrabbleHub is a browser-based app for managing Scrabble tournaments, players, g
 7. Whenever you are ready to start another event, choose **Refresh for next tournament** on the Dashboard. The new event starts with an empty roster and opens the Players page so you can register new players or add existing directory players. Previous tournaments and results are kept.
 8. Select **Annotate** beside a pairing, or open **Annotation**, to record each move.
 9. Open **Statistics** to browse the scoreboards and compare institutions. Use the tournament selector to filter results.
+10. Open **Prizes** to view the tournament awards and download an HTML slide presentation.
 
 ScrabbleHub is a static front-end app. It requires no build step or package installation.
 
@@ -32,6 +33,8 @@ ScrabbleHub is a static front-end app. It requires no build step or package inst
 - Keep a move-by-move annotation log for each pairing, including player, word, score, and optional notes.
 - Review recent tournaments and player, tournament, and match totals on the Dashboard.
 - Filter scoreboards by tournament.
+- View the overall winner and runner-up ranked by wins then spread, plus highest-spread awards with ties shared.
+- Download a self-contained HTML prize presentation with one slide per award; open it in a browser or print it to PDF.
 - Compare campuses by the mean of their members' per-game averages. Identify the leading institution by tournament points: one point per win and half a point per draw.
 - Use responsive layouts on desktop and mobile devices.
 
