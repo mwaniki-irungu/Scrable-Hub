@@ -109,7 +109,7 @@ function updateDashboard() {
     populateTournamentOptions();
     renderPlayers();
     renderPairings();
-    updateCompletedTournamentPanel();
+    updateNextTournamentPanel();
     renderAnnotationPage();
     updateStatistics();
 }
@@ -358,12 +358,12 @@ function isTournamentComplete(tournament) {
     return true;
 }
 
-function updateCompletedTournamentPanel() {
+function updateNextTournamentPanel() {
     const panel = document.getElementById("completedTournamentPanel");
     const latestTournament = tournaments[tournaments.length - 1];
-    const isComplete = latestTournament && isTournamentComplete(latestTournament);
-    panel.hidden = !isComplete;
-    if (isComplete) {
+    const hasTournament = Boolean(latestTournament);
+    panel.hidden = !hasTournament;
+    if (latestTournament) {
         document.getElementById("completedTournamentName").textContent = latestTournament.name;
     }
 }
