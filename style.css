@@ -268,7 +268,7 @@ body {
 
 /* CONTENT PANELS */
 
-.content-grid {
+.dashboard-ratings { margin-top: 20px; } .dashboard-ratings .panel-header { margin-bottom: 16px; } .dashboard-ratings .panel-header p { color: var(--muted); font-size: 11px; margin-top: 6px; } .content-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     gap: 20px;

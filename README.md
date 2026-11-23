@@ -19,7 +19,7 @@ ScrabbleHub is a static front-end app. It requires no build step or package inst
 ## Features
 
 - Register players with a required name and non-negative Scrabble rating. Campus or institution is optional, and duplicate names are rejected regardless of capitalization.
-- Browse and search the player directory, including player ratings, campus assignments, and recorded results.
+- Browse and search the player directory, including player ratings, campus assignments, and recorded results. Ratings are shown on the Dashboard in this browser whenever the site is opened.
 - Edit a player's campus or institution assignment in the Players directory.
 - Create tournaments with a venue, date, and round count.
 - Use in-page forms and confirmations for tournament setup, player registration, campus edits, and kick-out or reinstatement actions.
